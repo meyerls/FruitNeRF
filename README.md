@@ -20,3 +20,8 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 # Note
  
 Code will be published soon!
+
+## Dataset
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
+
