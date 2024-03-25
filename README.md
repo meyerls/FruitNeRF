@@ -17,7 +17,7 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 <p align="center">
 <a href="https://meyerls.github.io/fruit_nerf/">🌐[Project Page]</a>
 <a href="https://meyerls.github.io/fruit_nerf/">📄[Paper]</a>
-<a href="https://meyerls.github.io/fruit_nerf/">📁[Dataset]</a>
+<a href="https://zenodo.org/records/10869455">📁[Dataset]</a>
 </p>
 
 # Installation
