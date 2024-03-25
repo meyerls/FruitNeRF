@@ -14,7 +14,7 @@ three apple trees with manually counted ground truths, a benchmark apple dataset
 location, while the synthetic dataset comprises various fruit types including apple, plum, lemon, pear, peach, and
 mangoes. Additionally, we assess the performance of fruit counting using the foundation model compared to a U-Net.</p>
 
-:globe_with_meridians:[[Project Page]](https://meyerls.github.io/fruit_nerf/)  :page_facing_up:[[ Paper]](https://meyerls.github.io/fruit_nerf/)  :file_folder:[[ Dataset]](https://meyerls.github.io/fruit_nerf/)
+:globe_with_meridians:[[Project Page]](https://meyerls.github.io/fruit_nerf/)  :page_facing_up:[[ Paper]](https://meyerls.github.io/fruit_nerf/)  :file_folder:[[ Dataset]](https://zenodo.org/records/10869455)
 
 
 # Note
