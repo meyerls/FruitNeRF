@@ -24,7 +24,7 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 
 ### 0. Install Nerfstudio dependencies
 
-[Follow these instructions](https://docs.nerf.studio/en/latest/quickstart/installation.html) up to and including "
+[Follow these instructions](https://docs.nerf.studio/quickstart/installation.html) up to and including "
 tinycudann" to install dependencies and create an environment
 
 ### 1. Clone this repo
@@ -54,7 +54,11 @@ ns-prepocess-fruit-data ...
 ## Training
 
 ```bash
-ns-train fruit_nerf --data {path/to/image-dir}
+ns-train fruit_nerf --data {path/to/workspace-dir} --output-dir {path/to/output-dir}
+```
+
+```bash
+ns-train fruit_nerf_big --data {path/to/workspace-dir} --output-dir {path/to/output-dir}
 ```
 
 ## Volumetric Sampling
