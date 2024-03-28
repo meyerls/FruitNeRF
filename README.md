@@ -100,7 +100,7 @@ ns-fruits count --data {path/to/semantic-point-cloud}
 ```
 
 # Data
-<video src="./images/output_apple.mp4" autoplay style="max-width: 180px;">
+<video src="./images/output_apple.mp4" controls="controls" style="max-width: 730px;">
 </video>
 
 ## Bibtex
