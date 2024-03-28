@@ -101,27 +101,31 @@ ns-fruits count --data {path/to/semantic-point-cloud}
 
 # Data
 
+## Synthetic Dataset
+
 <div style="display: flex; flex-wrap: nowrap; overflow-x: auto;">
-    <img src="images/apple.gif"/>
-    <img src="images/lemon.gif"/>
-    <img src="images/mango.gif"/>
-    <img src="images/peach.gif"/>
-    <img src="images/pear.gif"/>
-    <img src="images/plum.gif"/>
+    <img src="images/apple.gif" width=120/>
+    <img src="images/lemon.gif" width=120/>
+    <img src="images/mango.gif" width=120/>
+    <img src="images/peach.gif" width=120/>
+    <img src="images/pear.gif" width=120/>
+    <img src="images/plum.gif" width=120/>
 </div>
 
+Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
 
-<div class=" text-align: center;">
-<img src="images/row2.jpg"/>
 
-</div>
+## Real Dataset
+
+<img src="images/row2.jpg" width=512 style="justify-content: center"/>
+
+Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
+
 
 
 
 
 ## Bibtex
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
 
 If you find this useful, please cite the paper!
 <pre id="codecell0">@inproceedings{fruitnerf2024,
