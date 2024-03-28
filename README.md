@@ -1,5 +1,10 @@
 <h1 style="text-align: center;">:apple: :pear: FruitNeRF:  A Generalized Framework for Counting Fruits in Neural Radiance Fields :peach: :lemon:</h1>
 
+<p align="center">
+<a href="https://meyerls.github.io/fruit_nerf/">🌐[Project Page]</a>
+<a href="https://meyerls.github.io/fruit_nerf/">📄[Paper]</a>
+<a href="https://zenodo.org/records/10869455">📁[Dataset]</a>
+</p>
 
 <p style="align:justify"><b>Abstract</b>: We introduce FruitNeRF, a unified novel fruit counting framework that leverages state-of-the-art view synthesis methods
 to count any fruit type directly in 3D. Our framework takes an unordered set of posed images captured by a monocular
@@ -14,16 +19,11 @@ three apple trees with manually counted ground truths, a benchmark apple dataset
 location, while the synthetic dataset comprises various fruit types including apple, plum, lemon, pear, peach, and
 mangoes. Additionally, we assess the performance of fruit counting using the foundation model compared to a U-Net.</p>
 
+
 <p align="center">
     <img src="images/teaser.gif" style="width: 512px"/>
 </p>
 
-
-<p align="center">
-<a href="https://meyerls.github.io/fruit_nerf/">🌐[Project Page]</a>
-<a href="https://meyerls.github.io/fruit_nerf/">📄[Paper]</a>
-<a href="https://zenodo.org/records/10869455">📁[Dataset]</a>
-</p>
 
 # Installation
 
