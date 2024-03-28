@@ -103,13 +103,13 @@ ns-fruits count --data {path/to/semantic-point-cloud}
 
 ## Synthetic Dataset
 
-<div style="display: flex; flex-wrap: nowrap; overflow-x: auto;">
-    <img src="images/apple.gif" width=120/>
-    <img src="images/lemon.gif" width=120/>
-    <img src="images/mango.gif" width=120/>
-    <img src="images/peach.gif" width=120/>
-    <img src="images/pear.gif" width=120/>
-    <img src="images/plum.gif" width=120/>
+<div style="display: block; margin-left: auto; margin-right: auto">
+    <img src="images/apple.gif" style=" width: 128px"/>
+    <img src="images/lemon.gif" style=" width: 128px"/>
+    <img src="images/mango.gif" style=" width: 128px"/>
+    <img src="images/peach.gif" style=" width: 128px"/>
+    <img src="images/pear.gif" style=" width: 128px"/>
+    <img src="images/plum.gif" style=" width: 128px"/>
 </div>
 
 Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
@@ -117,7 +117,7 @@ Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https:/
 
 ## Real Dataset
 
-<img src="images/row2.jpg" width=512 style="justify-content: center"/>
+<img src="images/row2.jpg" style="display: block; margin-left: auto; margin-right: auto; width: 512px"/>
 
 Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
 
