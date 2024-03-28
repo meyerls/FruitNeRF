@@ -24,7 +24,7 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 
 ## Install Nerfstudio
 
-<details open>
+<details>
   <summary>Expand for guide</summary>
 
 ### 0. Install Nerfstudio dependencies
@@ -49,7 +49,7 @@ Run `ns-train -h`: you should see a list of "subcommand" with fruit_nerf include
 
 ## Install Grounding-SAM
 
-<details open>
+<details>
   <summary>Expand for guide</summary>
 
 Please install Grounding-SAM into the segmentation folder. For more information
@@ -69,9 +69,14 @@ wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alp
 # Using FruitNeRF
 
 Now that FruitNeRF is installed you can start counting fruits! You can use your own data, our real or
-synthetic [FruitNeRF Dataset](https://zenodo.org/records/10869455) or the [Fuji Dataset](https://zenodo.org/records/3712808).
+synthetic [FruitNeRF Dataset](https://zenodo.org/records/10869455) or
+the [Fuji Dataset](https://zenodo.org/records/3712808).
+If you use ower FruitNeRF dataset you can skip the preparations step and jump to **Training**.
 
 ## Prepare own Data
+
+For our data and the Fuji dataset you first have to compute the intrinsic and extrinsic camera parameters and segment
+the images using grounded-SAM. 
 
 ```bash
 ns-prepocess-fruit-data ...
@@ -99,7 +104,7 @@ ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --ou
 ns-fruits count --data {path/to/semantic-point-cloud}
 ```
 
-# Data
+# Download Data
 
 ## Synthetic Dataset
 
@@ -114,16 +119,11 @@ ns-fruits count --data {path/to/semantic-point-cloud}
 
 Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
 
-
 ## Real Dataset
 
 <img src="images/row2.jpg" style="display: block; margin-left: auto; margin-right: auto; width: 512px"/>
 
 Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
-
-
-
-
 
 ## Bibtex
 
