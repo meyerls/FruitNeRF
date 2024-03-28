@@ -101,22 +101,7 @@ ns-fruits count --data {path/to/semantic-point-cloud}
 
 # Data
 
-<style>
-  .image-container {
-    display: flex;
-    flex-wrap: nowrap; /* Ensures images stay in one line */
-    overflow-x: auto; /* Allows scrolling if images don't fit */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS devices */
-  }
-  .image-container img {
-    max-width: 100%; /* Ensures images scale with page size */
-    height: auto; /* Maintains aspect ratio */
-    margin-right: 10px; /* Adds spacing between images */
-  }
-</style>
-<body>
-
-<div class="image-container">
+<div style="display: flex; flex-wrap: nowrap; overflow-x: auto;">
     <img src="images/apple.gif"/>
     <img src="images/lemon.gif"/>
     <img src="images/mango.gif"/>
@@ -125,7 +110,8 @@ ns-fruits count --data {path/to/semantic-point-cloud}
     <img src="images/plum.gif"/>
 </div>
 
-<div class="image-container">
+
+<div class=" text-align: center;">
 <img src="images/row2.jpg"/>
 
 </div>
