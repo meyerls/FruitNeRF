@@ -14,6 +14,9 @@ three apple trees with manually counted ground truths, a benchmark apple dataset
 location, while the synthetic dataset comprises various fruit types including apple, plum, lemon, pear, peach, and
 mangoes. Additionally, we assess the performance of fruit counting using the foundation model compared to a U-Net.</p>
 
+<img src="images/row2.jpg" style="display: block; margin-left: auto; margin-right: auto; width: 512px"/>
+
+
 <p align="center">
 <a href="https://meyerls.github.io/fruit_nerf/">🌐[Project Page]</a>
 <a href="https://meyerls.github.io/fruit_nerf/">📄[Paper]</a>
@@ -22,32 +25,32 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 
 # Installation
 
-## Install Nerfstudio
+### Install Nerfstudio
 
 <details>
   <summary>Expand for guide</summary>
 
-### 0. Install Nerfstudio dependencies
+#### 0. Install Nerfstudio dependencies
 
 [Follow these instructions](https://docs.nerf.studio/quickstart/installation.html) up to and including "
 tinycudann" to install dependencies and create an environment
 
-### 1. Clone this repo
+#### 1. Clone this repo
 
 `git clone https://github.com/meyerls/FruitNeRF.git`
 
-### 2. Install this repo as a python package
+#### 2. Install this repo as a python package
 
 Navigate to this folder and run `python -m pip install -e .`
 
-### 3. Run `ns-install-cli`
+#### 3. Run `ns-install-cli`
 
-### Checking the install
+#### Checking the install
 
 Run `ns-train -h`: you should see a list of "subcommand" with fruit_nerf included among them.
 </details>
 
-## Install Grounding-SAM
+### Install Grounding-SAM
 
 <details>
   <summary>Expand for guide</summary>
