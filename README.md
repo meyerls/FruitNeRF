@@ -14,7 +14,9 @@ three apple trees with manually counted ground truths, a benchmark apple dataset
 location, while the synthetic dataset comprises various fruit types including apple, plum, lemon, pear, peach, and
 mangoes. Additionally, we assess the performance of fruit counting using the foundation model compared to a U-Net.</p>
 
-<img src="images/teaser.gif" style="display: block; margin-left: auto; margin-right: auto; width: 512px"/>
+<p align="center">
+    <img src="images/teaser.gif" style="width: 512px"/>
+</p>
 
 
 <p align="center">
