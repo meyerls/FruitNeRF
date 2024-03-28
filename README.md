@@ -101,9 +101,8 @@ ns-fruits count --data {path/to/semantic-point-cloud}
 
 # Data
 
-<video poster="" id="apple" autoplay muted loop playsinline height="100%">
-    <source src="./images/output_apple.mp4">
-</video>
+<video src="./images/output_apple.mp4"" id="apple" autoplay muted loop width="128px">
+
 
 ## Bibtex
 
