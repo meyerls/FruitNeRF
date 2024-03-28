@@ -22,6 +22,11 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 
 # Installation
 
+## Install Nerfstudio
+
+<details open>
+  <summary>Expand for guide</summary>
+
 ### 0. Install Nerfstudio dependencies
 
 [Follow these instructions](https://docs.nerf.studio/quickstart/installation.html) up to and including "
@@ -29,7 +34,7 @@ tinycudann" to install dependencies and create an environment
 
 ### 1. Clone this repo
 
-`git clone https://github.com/meyerls/fruit_nerf`
+`git clone https://github.com/meyerls/FruitNeRF.git`
 
 ### 2. Install this repo as a python package
 
@@ -40,10 +45,31 @@ Navigate to this folder and run `python -m pip install -e .`
 ### Checking the install
 
 Run `ns-train -h`: you should see a list of "subcommand" with fruit_nerf included among them.
+</details>
+
+## Install Grounding-SAM
+
+<details open>
+  <summary>Expand for guide</summary>
+
+Please install Grounding-SAM into the segmentation folder. For more information
+see [Install Grounding-SAM](https://github.com/IDEA-Research/Grounded-Segment-Anything?tab=readme-ov-file#installation)
+
+```bash
+cd segmentation/Grounded-Segment-Anything
+
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+```
+
+- Download SAM-HQ checkpoint [here](https://github.com/SysCV/sam-hq#model-checkpoints)
+
+</details>
 
 # Using FruitNeRF
 
-Now that FruitNeRF is installed you can start counting fruits!
+Now that FruitNeRF is installed you can start counting fruits! You can use your own data, our real or
+synthetic [FruitNeRF Dataset](https://zenodo.org/records/10869455) or the [Fuji Dataset](https://zenodo.org/records/3712808).
 
 ## Prepare own Data
 
@@ -73,7 +99,15 @@ ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --ou
 ns-fruits count --data {path/to/semantic-point-cloud}
 ```
 
+# Data
+
+<video poster="" id="apple" autoplay muted loop playsinline height="100%">
+    <source src="./images/output_apple.mp4">
+</video>
+
 ## Bibtex
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
 
 If you find this useful, please cite the paper!
 <pre id="codecell0">@inproceedings{fruitnerf2024,
