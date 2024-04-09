@@ -28,7 +28,6 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
     <img src="images/teaser.gif" style="width: 512px"/>
 </p-->
 
-
 # Installation
 
 ### Install Nerfstudio
@@ -61,17 +60,69 @@ Run `ns-train -h`: you should see a list of "subcommand" with fruit_nerf include
 <details>
   <summary>Expand for guide</summary>
 
-Please install Grounding-SAM into the segmentation folder. For more information
-see [Install Grounding-SAM](https://github.com/IDEA-Research/Grounded-Segment-Anything?tab=readme-ov-file#installation)
+Please install Grounding-SAM into the segmentation folder. More details can be found
+in [install segment anything](https://github.com/facebookresearch/segment-anything#installation)
+and [install GroundingDINO](https://github.com/IDEA-Research/GroundingDINO#install). A copied variant is listed below.
 
 ```bash
-cd segmentation/Grounded-Segment-Anything
+# Start from FruitNerf root folder.
+cd segmentation 
 
+# Clone GroundedSAM repository and rename folder
+git clone https://github.com/IDEA-Research/Grounded-Segment-Anything.git grounded_sam
+cd grounded_sam
+
+# Checkout version compatible with FruitNeRF
+git checkout fe24
+```
+
+You should set the environment variable manually as follows if you want to build a local GPU environment for
+Grounded-SAM:
+
+```bash
+export AM_I_DOCKER=False
+export BUILD_WITH_CUDA=True
+export CUDA_HOME=/path/to/cuda-11.3/
+```
+
+Install Segment Anything:
+
+```bash
+python -m pip install -e segment_anything
+```
+
+Install Grounding DINO:
+
+```bash
+pip install --no-build-isolation -e GroundingDINO
+```
+
+Install diffusers and misc:
+
+```bash
+pip install --upgrade diffusers[torch]
+
+pip install opencv-python pycocotools matplotlib onnxruntime onnx ipykernel
+```
+
+Download pretrained weights
+
+```bash
+cd .. # Download into grounded_sam
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
 ```
 
-- Download SAM-HQ checkpoint [here](https://github.com/SysCV/sam-hq#model-checkpoints)
+Install SAM-HQ
+
+```bash
+pip install segment-anything-hq
+```
+
+Download SAM-HQ checkpoint from [here](https://github.com/SysCV/sam-hq#model-checkpoints) (We recommend ViT-H HQ-SAM)
+into the Grounded-Segment-Anything folder.
+
+**Done!**
 
 </details>
 
@@ -85,11 +136,21 @@ If you use ower FruitNeRF dataset you can skip the preparations step and jump to
 ## Prepare own Data
 
 For our data and the Fuji dataset you first have to compute the intrinsic and extrinsic camera parameters and segment
-the images using grounded-SAM. 
+the images using grounded-SAM.
 
 ```bash
-ns-prepocess-fruit-data ...
+ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --segmentation-class [Str+Str+Str]
 ```
+
+- ```--data [PATH]```: Number of times to downscale the images. Default is 3.
+- ```--output-dir [PATH]```: Number of times to downscale the images. Default is 3.
+- ```--num_downscales [INT]```: Number of times to downscale the images. Default is 3.
+- ```--segmentation-class [Str+Str+Str+...]]``` Text prompt for segmentation with Grounded SAM. Multiple arguments are also valid.
+- ```--data_semantic [PATH]```: Predefined path to precomputed masks.
+- ```--skip-colmap```: skips COLMAP and generates transforms.json if possible.
+- ```--skip_image_processing```: skips copying and downscaling of images and only runs COLMAP if possible and enabled.
+- ```--flag_segmentation_image_debug```: saves the masks overlay on rgb images.
+
 
 ## Training
 
