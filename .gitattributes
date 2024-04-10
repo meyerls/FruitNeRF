@@ -1,0 +1,4 @@
+images/ filter=lfs diff=lfs merge=lfs -text
+images/teaser.gif filter=lfs diff=lfs merge=lfs -text
+images/fruitnerfsvg_real.png filter=lfs diff=lfs merge=lfs -text
+images/export_image.png filter=lfs diff=lfs merge=lfs -text
