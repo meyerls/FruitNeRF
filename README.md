@@ -1,5 +1,4 @@
-<h1 style="text-align: center;">:apple: :pear: FruitNeRF :peach: :lemon:</h1>
-<h3 style="text-align: center;">A Generalized Framework for Counting Fruits in Neural Radiance Fields</h3>
+<h1 style="text-align: center;">:apple: :pear: FruitNeRF: A Generalized Framework for Counting Fruits in Neural Radiance Fields :peach: :lemon:</h1>
 
 <p align="center">
 <a href="https://meyerls.github.io/fruit_nerf/">🌐[Project Page]</a>
