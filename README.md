@@ -38,7 +38,10 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 #### 0. Install Nerfstudio dependencies
 
 [Follow these instructions](https://docs.nerf.studio/quickstart/installation.html) up to and including "
-tinycudann" to install dependencies and create an environment
+tinycudann" to install dependencies and create an environment. 
+
+**Important**: In Section *Install nerfstudio* please install version **0.3.2** via `pip install nerfstudio==0.3.2` not the latest one!
+
 
 #### 1. Clone this repo
 
@@ -142,10 +145,12 @@ the images using grounded-SAM.
 ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --segmentation-class [Str+Str+Str]
 ```
 
-- ```--data [PATH]```: Number of times to downscale the images. Default is 3.
-- ```--output-dir [PATH]```: Number of times to downscale the images. Default is 3.
-- ```--num_downscales [INT]```: Number of times to downscale the images. Default is 3.
+- ```--data [PATH]```: Path the data, either a video file or a directory of images.
+- ```--output-dir [PATH]```: Path to the output directory.
 - ```--segmentation-class [Str+Str+Str+...]]``` Text prompt for segmentation with Grounded SAM. Multiple arguments are also valid.
+- ```--num_downscales [INT]```: Number of times to downscale the images. Default is 3.
+- ```--text_threshold [FLOAT]``` Threshold for text prompt/class to segment images. Default value is 0.15.
+- ```--box_threshold [FLOAT]``` Threshold for bounding box prediction. Default value is 0.15.
 - ```--data_semantic [PATH]```: Predefined path to precomputed masks.
 - ```--skip-colmap```: skips COLMAP and generates transforms.json if possible.
 - ```--skip_image_processing```: skips copying and downscaling of images and only runs COLMAP if possible and enabled.
@@ -154,9 +159,12 @@ ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-
 
 ## Training
 
+#### FruitNerf (~15min)
 ```bash
 ns-train fruit_nerf --data {path/to/workspace-dir} --output-dir {path/to/output-dir}
 ```
+
+#### FruitNerf Big (~3h)
 
 ```bash
 ns-train fruit_nerf_big --data {path/to/workspace-dir} --output-dir {path/to/output-dir}
@@ -165,10 +173,20 @@ ns-train fruit_nerf_big --data {path/to/workspace-dir} --output-dir {path/to/out
 ## Volumetric Sampling
 
 ```bash
-ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --output-dir {path/to/export/dir} --use-bounding-box True --bounding-box-min -0.2 -0.2 -0.26 --bounding-box-max 0.2 0.2 0.05 --num_rays_per_batch 2000 --num_points_per_side 1000
+ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --output-dir {path/to/export/dir} --use-bounding-box True --bounding-box-min -1 - 1 -1 --bounding-box-max 1 1 1 --num_rays_per_batch 2000 --num_points_per_side 2000
 ```
 
-## Point Cloud Clustering / Fruit Counting
+- `--config {path/to/config.yaml}`: The config.yaml  can be found in the output dir specified during the ns-train.
+- `--bounding-box-min` and `--bounding-box-max`: Values for the bounding box. To find out the best parameters please try out the Crop Viewport in the nerfstudio viewer
+- `--num_rays_per_batch`: Number of rays per batch. This depends on the capability of your GPU.
+- `--num_points_per_side`: We sample a Volume with NxNxN points. The more points the better the resolution and more compute time.
+
+<p align="center" >
+    <img src="images/export_image.png" style="width: 200px"/>
+</p>
+
+## ToDo: Point Cloud Clustering / Fruit Counting
+
 
 ```bash
 ns-fruits count --data {path/to/semantic-point-cloud}
@@ -178,14 +196,14 @@ ns-fruits count --data {path/to/semantic-point-cloud}
 
 ## Synthetic Dataset
 
-<div style="display: block; margin-left: auto; margin-right: auto">
+<p align="center" >
     <img src="images/apple.gif" style=" width: 128px"/>
     <img src="images/lemon.gif" style=" width: 128px"/>
     <img src="images/mango.gif" style=" width: 128px"/>
     <img src="images/peach.gif" style=" width: 128px"/>
     <img src="images/pear.gif" style=" width: 128px"/>
     <img src="images/plum.gif" style=" width: 128px"/>
-</div>
+</p>
 
 Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https://doi.org/10.5281/zenodo.10869455)
 
