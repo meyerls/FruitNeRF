@@ -229,10 +229,11 @@ Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https:/
 If you find this useful, please cite the paper!
 <pre id="codecell0">
 @inproceedings{fruitnerf2024,
-&nbsp;author = { Lukas Meyer, Andreas Gilson, Ute Schmidt, Marc Stamminger},
-&nbsp;title = {FruitNeRF: A Unified Neural Radiance Field based Fruit Counting Framework},
-&nbsp;booktitle = {ArXiv},
-&nbsp;year = {2024},
+&nbsp;author     = { Lukas Meyer, Andreas Gilson, Ute Schmidt, Marc Stamminger},
+&nbsp;title      = {FruitNeRF: A Unified Neural Radiance Field based Fruit Counting Framework},
+&nbsp;booktitle  = {ArXiv},
+&nbsp;year       = {2024},
+ url        = {https://meyerls.github.io/fruit_nerf}
 } </pre>
 
 # ToDo
