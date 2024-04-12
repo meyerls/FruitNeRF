@@ -165,19 +165,6 @@ class FruitModel(Model):
         self.renderer_depth = DepthRenderer()
         self.renderer_uncertainty = UncertaintyRenderer()
         self.renderer_semantics = SemanticRenderer()
-        # Include this renderer in FruitNeRF:
-        # class SemanticRenderer(nn.Module):
-        #    """Calculate semantics along the ray."""
-
-        #    @classmethod
-        #    def forward(
-        #            cls,
-        #            semantics: Float[Tensor, "*bs num_samples num_classes"],
-        #            weights: Float[Tensor, "*bs num_samples 1"],
-        #    ) -> Float[Tensor, "*bs num_classes"]:
-        #        """Calculate semantics along the ray."""
-        #        sem = torch.sum(weights * semantics, dim=-2)
-        #        return sem
 
         # losses
         self.rgb_loss = MSELoss()
@@ -272,18 +259,8 @@ class FruitModel(Model):
         depth = self.renderer_depth(weights=weights, ray_samples=ray_samples)
         accumulation = self.renderer_accumulation(weights=weights)
 
-        outputs = {
-            "rgb": rgb,
-            "accumulation": accumulation,
-            "depth": depth,
-        }
-
-        # depth = self.renderer_depth(weights=weights, ray_samples=ray_samples)
-        # accumulation = self.renderer_accumulation(weights=weights)
-
-        # outputs = {"rgb": rgb, "accumulation": accumulation, "depth": depth}
-        outputs["weights_list"] = weights_list
-        outputs["ray_samples_list"] = ray_samples_list
+        outputs = {"rgb": rgb, "accumulation": accumulation, "depth": depth, "weights_list": weights_list,
+                   "ray_samples_list": ray_samples_list}
 
         for i in range(self.config.num_proposal_iterations):
             outputs[f"prop_depth_{i}"] = self.renderer_depth(weights=weights_list[i], ray_samples=ray_samples_list[i])
@@ -309,10 +286,6 @@ class FruitModel(Model):
         loss_dict = {}
         image = batch["image"].to(self.device)
         loss_dict["rgb_loss"] = self.rgb_loss(image, outputs["rgb"])
-
-        # semantic loss
-        # batch["fruit_mask"][batch["fruit_mask"] < 0.1] = 0
-        # batch["fruit_mask"][batch["fruit_mask"] >= 0.1] = 1
 
         loss_dict["semantics_loss"] = self.config.semantic_loss_weight * self.binary_cross_entropy_loss(
             outputs["semantics"], batch["fruit_mask"]
@@ -392,12 +365,12 @@ class FruitModel(Model):
         # semantic_labels = torch.argmax(torch.nn.functional.softmax(outputs["semantics"], dim=-1), dim=-1)
         semantic_labels = torch.sigmoid(outputs["semantics"])
         images_dict[
-            "semantics_colormap"] = semantic_labels  # colormaps.apply_float_colormap(semantic_labels).cpu().numpy()  #self.colormap.to(self.device)[semantic_labels]
+            "semantics_colormap"] = semantic_labels
 
         # valid mask
         images_dict["fruit_mask"] = batch["fruit_mask"].repeat(1, 1, 3).to(self.device)
-        #batch["fruit_mask"][batch["fruit_mask"] < 0.1] = 0
-        #batch["fruit_mask"][batch["fruit_mask"] >= 0.1] = 1
+        # batch["fruit_mask"][batch["fruit_mask"] < 0.1] = 0
+        # batch["fruit_mask"][batch["fruit_mask"] >= 0.1] = 1
 
         from torchmetrics.classification import BinaryJaccardIndex
         metric = BinaryJaccardIndex().to(self.device)
@@ -408,288 +381,5 @@ class FruitModel(Model):
         return metrics_dict, images_dict
 
 
-# from nerfstudio.fields.vanilla_nerf_field import NeRFField
-# from nerfstudio.utils import colormaps, colors, misc
-# from nerfstudio.model_components.ray_samplers import PDFSampler, UniformSampler
-# from nerfstudio.configs.config_utils import to_immutable_dict
-# from nerfstudio.field_components.temporal_distortions import TemporalDistortionKind
-# from typing import Any, Dict, List, Tuple, Type
-# from nerfstudio.models.base_model import Model, ModelConfig
-#
-# @dataclass
-# class FruitNerfMLPModelConfig(ModelConfig):
-#    """Nerfacto Model Config"""
-#
-#    _target: Type = field(default_factory=lambda: FruitModelMLP)
-#    semantic_loss_weight: float = 1.0
-#    pass_semantic_gradients: bool = False
-#    num_coarse_samples: int = 64
-#    """Number of samples in coarse field evaluation"""
-#    num_importance_samples: int = 128
-#    """Number of samples in fine field evaluation"""
-#
-#    enable_temporal_distortion: bool = False
-#    """Specifies whether or not to include ray warping based on time."""
-#    temporal_distortion_params: Dict[str, Any] = to_immutable_dict({"kind": TemporalDistortionKind.DNERF})
-#    """Parameters to instantiate temporal distortion with"""
-#
-#
 class FruitModelMLP(Model):
     pass
-#    """Vanilla model
-#
-#    Args:
-#        config: Nerfacto configuration to instantiate model
-#    """
-#
-#    config: FruitNerfMLPModelConfig
-#
-#    def __init__(self, config: FruitNerfModelConfig, metadata: Dict, **kwargs) -> None:
-#        assert "semantics" in metadata.keys() and isinstance(metadata["semantics"], Semantics)
-#        self.semantics = metadata["semantics"]
-#        self.test_mode = kwargs['test_mode']
-#        self.render_rgb_inference = kwargs['render_rgb_inference']
-#
-#        self.field_coarse = None
-#        self.field_fine = None
-#        self.temporal_distortion = None
-#
-#        super().__init__(config=config, **kwargs)
-#        self.colormap = self.semantics.colors.clone().detach().to(self.device)
-#
-#    def populate_modules(self):
-#        """Set the fields and modules."""
-#        super().populate_modules()
-#
-#        # Fields
-#        position_encoding = NeRFEncoding(
-#            in_dim=3, num_frequencies=10, min_freq_exp=0.0, max_freq_exp=8.0, include_input=True
-#        )
-#        direction_encoding = NeRFEncoding(
-#            in_dim=3, num_frequencies=4, min_freq_exp=0.0, max_freq_exp=4.0, include_input=True
-#        )
-#
-#        self.field_coarse = SemanticNeRFField(
-#            position_encoding=position_encoding,
-#            direction_encoding=direction_encoding,
-#            base_mlp_layer_width=196,
-#            pass_semantic_gradients=self.config.pass_semantic_gradients,
-#
-#        )
-#
-#        self.field_fine = SemanticNeRFField(
-#            position_encoding=position_encoding,
-#            direction_encoding=direction_encoding,
-#            base_mlp_layer_width=196,
-#            pass_semantic_gradients=self.config.pass_semantic_gradients,
-#        )
-#
-#        # samplers
-#        self.sampler_uniform = UniformSampler(num_samples=self.config.num_coarse_samples)
-#        self.sampler_pdf = PDFSampler(num_samples=self.config.num_importance_samples)
-#
-#        # renderers
-#        self.renderer_rgb = RGBRenderer(background_color=colors.WHITE)
-#        self.renderer_accumulation = AccumulationRenderer()
-#        self.renderer_depth = DepthRenderer()
-#        self.renderer_semantics = SemanticRenderer()
-#
-#        # losses
-#        self.rgb_loss = MSELoss()
-#        self.binary_cross_entropy_loss = torch.nn.BCEWithLogitsLoss(reduction="mean")
-#
-#        # metrics
-#        self.psnr = PeakSignalNoiseRatio(data_range=1.0)
-#        self.ssim = structural_similarity_index_measure
-#        self.lpips = LearnedPerceptualImagePatchSimilarity(normalize=True)
-#
-#        if getattr(self.config, "enable_temporal_distortion", False):
-#            params = self.config.temporal_distortion_params
-#            kind = params.pop("kind")
-#            self.temporal_distortion = kind.to_temporal_distortion(params)
-#
-#    def get_param_groups(self) -> Dict[str, List[Parameter]]:
-#        param_groups = {}
-#        if self.field_coarse is None or self.field_fine is None:
-#            raise ValueError("populate_fields() must be called before get_param_groups")
-#        param_groups["fields"] = list(self.field_coarse.parameters()) + list(self.field_fine.parameters())
-#        if self.temporal_distortion is not None:
-#            param_groups["temporal_distortion"] = list(self.temporal_distortion.parameters())
-#        return param_groups
-#
-#    def get_inference_outputs(self, ray_bundle: RayBundle, render_rgb: bool = False):
-#        outputs = {}
-#
-#        ray_samples = self.proposal_sampler(ray_bundle)
-#        field_outputs = self.field_fine.forward(ray_samples)
-#
-#        if render_rgb:
-#            outputs["rgb"] = field_outputs[FieldHeadNames.RGB]
-#
-#        outputs['point_location'] = ray_samples.frustums.get_positions()
-#        outputs["semantics"] = field_outputs[FieldHeadNames.SEMANTICS][..., 0]
-#        outputs["density"] = field_outputs[FieldHeadNames.DENSITY][..., 0]
-#
-#        semantic_labels = torch.sigmoid(outputs["semantics"])
-#        threshold = 0.9
-#        semantic_labels = torch.heaviside(semantic_labels - threshold, torch.tensor(0.)).to(torch.long)
-#
-#        outputs["semantics_colormap"] = semantic_labels
-#
-#        return outputs
-#
-#    def get_outputs(self, ray_bundle: RayBundle):
-#        if self.field_coarse is None or self.field_fine is None:
-#            raise ValueError("populate_fields() must be called before get_outputs")
-#
-#        # uniform sampling
-#        ray_samples_uniform = self.sampler_uniform(ray_bundle)
-#        if self.temporal_distortion is not None:
-#            offsets = None
-#            if ray_samples_uniform.times is not None:
-#                offsets = self.temporal_distortion(
-#                    ray_samples_uniform.frustums.get_positions(), ray_samples_uniform.times
-#                )
-#            ray_samples_uniform.frustums.set_offsets(offsets)
-#
-#        # coarse field:
-#        field_outputs_coarse = self.field_coarse.forward(ray_samples_uniform)
-#        weights_coarse = ray_samples_uniform.get_weights(field_outputs_coarse[FieldHeadNames.DENSITY])
-#        rgb_coarse = self.renderer_rgb(
-#            rgb=field_outputs_coarse[FieldHeadNames.RGB],
-#            weights=weights_coarse,
-#        )
-#        accumulation_coarse = self.renderer_accumulation(weights_coarse)
-#        depth_coarse = self.renderer_depth(weights_coarse, ray_samples_uniform)
-#
-#        # pdf sampling
-#        ray_samples_pdf = self.sampler_pdf(ray_bundle, ray_samples_uniform, weights_coarse)
-#        if self.temporal_distortion is not None:
-#            offsets = None
-#            if ray_samples_pdf.times is not None:
-#                offsets = self.temporal_distortion(ray_samples_pdf.frustums.get_positions(), ray_samples_pdf.times)
-#            ray_samples_pdf.frustums.set_offsets(offsets)
-#
-#        # fine field:
-#        field_outputs_fine = self.field_fine.forward(ray_samples_pdf)
-#        weights_fine = ray_samples_pdf.get_weights(field_outputs_fine[FieldHeadNames.DENSITY])
-#        rgb_fine = self.renderer_rgb(
-#            rgb=field_outputs_fine[FieldHeadNames.RGB],
-#            weights=weights_fine,
-#        )
-#        accumulation_fine = self.renderer_accumulation(weights_fine)
-#        depth_fine = self.renderer_depth(weights_fine, ray_samples_pdf)
-#
-#        outputs = {
-#            "rgb_coarse": rgb_coarse,
-#            "rgb_fine": rgb_fine,
-#            "accumulation_coarse": accumulation_coarse,
-#            "accumulation_fine": accumulation_fine,
-#            "depth_coarse": depth_coarse,
-#            "depth_fine": depth_fine,
-#        }
-#
-#        # semantics
-#        semantic_weights = weights_fine
-#        if not self.config.pass_semantic_gradients:
-#            semantic_weights = semantic_weights.detach()
-#        outputs["semantics"] = self.renderer_semantics(
-#            field_outputs_fine[FieldHeadNames.SEMANTICS], weights=semantic_weights
-#        )
-#
-#        # semantics colormaps
-#        semantic_labels = torch.sigmoid(outputs["semantics"].detach())
-#        threshold = 0.9
-#        semantic_labels = torch.heaviside(semantic_labels - threshold, torch.tensor(0.)).to(torch.long)
-#
-#        outputs["semantics_colormap"] = self.colormap.to(self.device)[semantic_labels]
-#
-#        return outputs
-#
-#    def setup_inference(self, render_rgb, num_inference_samples):
-#        self.render_rgb = render_rgb  # True
-#        self.num_inference_samples = num_inference_samples  # int(200)
-#        self.proposal_sampler = UniformSamplerWithNoise(num_samples=self.num_inference_samples, single_jitter=False)
-#
-#    def get_loss_dict(self, outputs, batch, metrics_dict=None) -> Dict[str, torch.Tensor]:
-#        # Scaling metrics by coefficients to create the losses.
-#        device = outputs["rgb_coarse"].device
-#        image = batch["image"].to(device)
-#
-#        rgb_loss_coarse = self.rgb_loss(image, outputs["rgb_coarse"])
-#        rgb_loss_fine = self.rgb_loss(image, outputs["rgb_fine"])
-#
-#        loss_dict = {"rgb_loss_coarse": rgb_loss_coarse, "rgb_loss_fine": rgb_loss_fine}
-#        loss_dict = misc.scale_dict(loss_dict, self.config.loss_coefficients)
-#
-#        # semantic loss
-#        loss_dict["semantics_loss"] = self.config.semantic_loss_weight * self.binary_cross_entropy_loss(
-#            outputs["semantics"], batch["fruit_mask"])
-#
-#        return loss_dict
-#
-#    def get_image_metrics_and_images(
-#            self, outputs: Dict[str, torch.Tensor], batch: Dict[str, torch.Tensor]
-#    ) -> Tuple[Dict[str, float], Dict[str, torch.Tensor]]:
-#        image = batch["image"].to(outputs["rgb_coarse"].device)
-#        image = self.renderer_rgb.blend_background(image)
-#        rgb_coarse = outputs["rgb_coarse"]
-#        rgb_fine = outputs["rgb_fine"]
-#        acc_coarse = colormaps.apply_colormap(outputs["accumulation_coarse"])
-#        acc_fine = colormaps.apply_colormap(outputs["accumulation_fine"])
-#        assert self.config.collider_params is not None
-#        depth_coarse = colormaps.apply_depth_colormap(
-#            outputs["depth_coarse"],
-#            accumulation=outputs["accumulation_coarse"],
-#            near_plane=self.config.collider_params["near_plane"],
-#            far_plane=self.config.collider_params["far_plane"],
-#        )
-#        depth_fine = colormaps.apply_depth_colormap(
-#            outputs["depth_fine"],
-#            accumulation=outputs["accumulation_fine"],
-#            near_plane=self.config.collider_params["near_plane"],
-#            far_plane=self.config.collider_params["far_plane"],
-#        )
-#
-#        combined_rgb = torch.cat([image, rgb_coarse, rgb_fine], dim=1)
-#        combined_acc = torch.cat([acc_coarse, acc_fine], dim=1)
-#        combined_depth = torch.cat([depth_coarse, depth_fine], dim=1)
-#
-#        # Switch images from [H, W, C] to [1, C, H, W] for metrics computations
-#        image = torch.moveaxis(image, -1, 0)[None, ...]
-#        rgb_coarse = torch.moveaxis(rgb_coarse, -1, 0)[None, ...]
-#        rgb_fine = torch.moveaxis(rgb_fine, -1, 0)[None, ...]
-#
-#        coarse_psnr = self.psnr(image, rgb_coarse)
-#        fine_psnr = self.psnr(image, rgb_fine)
-#        fine_ssim = self.ssim(image, rgb_fine)
-#        fine_lpips = self.lpips(image, rgb_fine)
-#        assert isinstance(fine_ssim, torch.Tensor)
-#
-#        metrics_dict = {
-#            "psnr": float(fine_psnr.item()),
-#            "coarse_psnr": float(coarse_psnr),
-#            "fine_psnr": float(fine_psnr),
-#            "fine_ssim": float(fine_ssim),
-#            "fine_lpips": float(fine_lpips),
-#        }
-#        images_dict = {"img": combined_rgb, "accumulation": combined_acc, "depth": combined_depth}
-#        return metrics_dict, images_dict
-#
-#    def forward(self, ray_bundle: RayBundle) -> Dict[str, Union[torch.Tensor, List]]:
-#        """Run forward starting with a ray bundle. This outputs different things depending on the configuration
-#        of the model and whether or not the batch is provided (whether or not we are training basically)
-#
-#        Args:
-#            ray_bundle: containing all the information needed to render that ray latents included
-#        """
-#
-#        if self.collider is not None:
-#            ray_bundle = self.collider(ray_bundle)
-#
-#        if self.test_mode == 'inference':
-#            fruit_nerf_output = self.get_inference_outputs(ray_bundle, self.render_rgb)
-#        else:
-#            fruit_nerf_output = self.get_outputs(ray_bundle)
-#
-#        return fruit_nerf_output

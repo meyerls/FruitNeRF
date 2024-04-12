@@ -111,7 +111,7 @@ def sample_volume(
             mask_sem = semantic >= 3  # 20
             mask_den = density >= 70  # 10
             mask_sem_colormap = semantics_colormap >= 0.999
-            mask_only_sem = semantics_colormap >= 0.99#9
+            mask_only_sem = semantics_colormap >= 0.99  # 9
 
             # Semantic colormap
             points_3d_semantic_colormap = points_3d[
@@ -122,12 +122,10 @@ def sample_volume(
                 color_semantic_colormap = semantics_colormap[
                     mask_sem_colormap.sum(dim=1).to(bool) & mask_den.sum(dim=1).to(bool)]
 
-
             color_semantic_colormap = torch.hstack([color_semantic_colormap, torch.sigmoid(
                 semantic[mask_sem_colormap.sum(dim=1).to(bool) & mask_den.sum(dim=1).to(bool)][:, 0]).unsqueeze(-1)])
             points_sem_colormap.append(points_3d_semantic_colormap.cpu())
             color_semantics_colormap.append(color_semantic_colormap.cpu())
-
 
             # Semantic
             points_3d_semantic = points_3d[mask_sem.sum(dim=1).to(bool) & mask_den.sum(dim=1).to(bool)]
@@ -154,7 +152,6 @@ def sample_volume(
             # densities.append(rgb_color.cpu())
             densities.append(density_color.cpu())
 
-
             if False:
                 # Semantic only
                 points_3d_only_semantic_colormap = points_3d[mask_only_sem.sum(dim=1).to(bool)]
@@ -164,14 +161,12 @@ def sample_volume(
                 else:
                     sem_color_only = semantic[mask_only_sem.sum(dim=1).to(bool)]
 
-                #sem_color_only = torch.hstack(
+                # sem_color_only = torch.hstack(
                 #    [sem_color_only, torch.sigmoid(
                 #    semantic[mask_only_sem.sum(dim=1).to(bool)][:, 0]).unsqueeze(-1)])
 
                 points_only_sem.append(points_3d_only_semantic_colormap.cpu())
                 color_only_semantics.append(sem_color_only.cpu())
-
-
 
             torch.cuda.empty_cache()
             progress.advance(task, sampled_point_position.shape[0])
@@ -190,21 +185,10 @@ def sample_volume(
         T = np.eye(4)
         T[:3, :4] = np.asarray(transform_json['transform'])[:3, :4]
         T[:3, :3] = T[:3, :3]
-        # T = T[np.array([0, 2, 1, 3]), :]
         T[:3, 3] *= -1
-        #
+
         pcd = pcd.scale(1 / transform_json['scale'], center=np.asarray((0, 0, 0)))
         pcd = pcd.scale(2, center=np.asarray((0, 0, 0)))
-        #pcd = pcd.transform(T)
-
-        # Cloud compare
-        #T = np.asarray([[0.994, -0.007, 0.118, -0.159],
-        #                [-0.008, 0.993, 0.127, -0.168],
-        #                [-0.118, -0.127, 0.986, 0.007],
-        #                [0.000, 0.000, 0.000, 1.000]])
-        #pcd = pcd.transform(T)
-
-    #o3d.io.write_point_cloud(str(output_dir / config.load_dir.parts[-3] / 'semantic_colormap.ply'), pcd)
 
     pcd_list.update(
         {'semantic_colormap': {
@@ -212,32 +196,15 @@ def sample_volume(
             'path': str(output_dir / config.load_dir.parts[-3] / 'semantic_colormap.ply')
         }})
 
-    # os.makedirs(str(output_dir / config.load_dir.parts[-3]), exist_ok=True)
-
-    # o3d.io.write_point_cloud(str(output_dir / config.load_dir.parts[-3] / 'semantic_colormap.ply'), pcd)
-
-    # points_sem_colormap_with_noise = points_sem_colormap + torch.normal(
-    #    mean=torch.asarray(0, device=points_sem_colormap.device, dtype=torch.double),
-    #    std=torch.linalg.norm(torch.asarray(0.0001, device=points_sem_colormap.device, dtype=torch.double)),
-    #    size=(points_sem_colormap.shape), device=points_sem_colormap.device)
-    # pcd = o3d.geometry.PointCloud()
-    # pcd.points = o3d.utility.Vector3dVector(points_sem_colormap_with_noise.double().cpu().numpy())
-    # pcd.colors = o3d.utility.Vector3dVector(semantic_colormap_rgbs.double().cpu().numpy())
-    # a, _ = pcd.remove_statistical_outlier(20, 0.5)
-    # o3d.io.write_point_cloud(str(output_dir / 'semantic_colormap_cleaned.ply'), a)
-
     # Semantic
     points_sem = torch.cat(points_sem, dim=0)
     semantic_rgbs = torch.cat(color_semantics, dim=0)
-    if semantic_rgbs.shape[0] !=0:
+    if semantic_rgbs.shape[0] != 0:
         semantic_rgbs /= semantic_rgbs.max()  # Normalize to visualize as point cloud
 
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(points_sem.double().cpu().numpy())
     pcd.colors = o3d.utility.Vector3dVector(semantic_rgbs.double().cpu().numpy()[:, :3])
-    # o3d.visualization.draw_geometries([pcd])
-
-    # pcd.scale(1 / transform_json['scale'], center=np.asarray((0, 0, 0)))
 
     if True:
         T = np.eye(4)
@@ -248,31 +215,11 @@ def sample_volume(
         #
         pcd = pcd.scale(1 / transform_json['scale'], center=np.asarray((0, 0, 0)))
         pcd = pcd.scale(2, center=np.asarray((0, 0, 0)))
-        #pcd = pcd.transform(T)
-#
-        ## Cloud compare
-        #T = np.asarray([[0.994, -0.007, 0.118, -0.159],
-        #                [-0.008, 0.993, 0.127, -0.168],
-        #                [-0.118, -0.127, 0.986, 0.007],
-        #                [0.000, 0.000, 0.000, 1.000]])
-        #pcd = pcd.transform(T)
 
     pcd_list.update({'semantic': {
         'pcd': pcd,
         'path': str(output_dir / config.load_dir.parts[-3] / 'semantic.ply')
     }})
-    # o3d.io.write_point_cloud(str(output_dir / config.load_dir.parts[-3] / 'semantic.ply'), pcd)
-
-    # points_sem_with_noise = points_sem + torch.normal(
-    #    mean=torch.asarray(0, device=points_sem_colormap.device, dtype=torch.double),
-    #    std=torch.linalg.norm(torch.asarray(0.0001, device=points_sem.device, dtype=torch.double)),
-    #    size=(points_sem.shape), device=points_sem.device)
-    # pcd = o3d.geometry.PointCloud()
-    # pcd.points = o3d.utility.Vector3dVector(points_sem_with_noise.double().cpu().numpy())
-    # pcd.colors = o3d.utility.Vector3dVector(semantic_rgbs.double().cpu().numpy())
-    # a, _ = pcd.remove_statistical_outlier(20, 0.2)
-    # o3d.visualization.draw_geometries([pcd])
-    # o3d.io.write_point_cloud(str(output_dir / 'semantic_cleaned.ply'), a)
 
     # Density
     points_den = torch.cat(points_den, dim=0)
@@ -284,8 +231,6 @@ def sample_volume(
     pcd.points = o3d.utility.Vector3dVector(points_den.double().cpu().numpy())
     pcd.colors = o3d.utility.Vector3dVector(density_rgb.double().cpu().numpy()[:, :3])
 
-    # pcd.scale(1 / transform_json['scale'], center=np.asarray((0, 0, 0)))
-
     if True:
         T = np.eye(4)
         T[:3, :4] = np.asarray(transform_json['transform'])[:3, :4]
@@ -295,59 +240,19 @@ def sample_volume(
         #
         pcd = pcd.scale(1 / transform_json['scale'], center=np.asarray((0, 0, 0)))
         pcd = pcd.scale(2, center=np.asarray((0, 0, 0)))
-        #pcd = pcd.transform(T)
-#
-        ## Cloud compare
-        #T = np.asarray([[0.994, -0.007, 0.118, -0.159],
-        #                [-0.008, 0.993, 0.127, -0.168],
-        #                [-0.118, -0.127, 0.986, 0.007],
-        #                [0.000, 0.000, 0.000, 1.000]])
-        #pcd = pcd.transform(T)
+        # pcd = pcd.transform(T)
+    #
+    ## Cloud compare
+    # T = np.asarray([[0.994, -0.007, 0.118, -0.159],
+    #                [-0.008, 0.993, 0.127, -0.168],
+    #                [-0.118, -0.127, 0.986, 0.007],
+    #                [0.000, 0.000, 0.000, 1.000]])
+    # pcd = pcd.transform(T)
 
     # o3d.visualization.draw_geometries([pcd])
     pcd_list.update({'density': {
         'pcd': pcd,
         'path': str(output_dir / config.load_dir.parts[-3] / 'density.ply')
     }})
-
-
-
-    if False:
-        # Semantic only
-        points_sem_only = torch.cat(points_only_sem, dim=0)
-        semantic_only_rgbs = torch.cat(color_only_semantics, dim=0)
-        #semantic_only_rgbs /= semantic_only_rgbs.max()  # Normalize to visualize as point cloud
-
-        pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(points_sem_only.double().cpu().numpy())
-        pcd.colors = o3d.utility.Vector3dVector(semantic_only_rgbs.double().cpu().numpy()[:, :3])
-
-        # pcd.scale(1 / transform_json['scale'], center=np.asarray((0, 0, 0)))
-
-        if True:
-            T = np.eye(4)
-            T[:3, :4] = np.asarray(transform_json['transform'])[:3, :4]
-            T[:3, :3] = T[:3, :3]
-            # T = T[np.array([0, 2, 1, 3]), :]
-            T[:3, 3] *= -1
-            #
-            pcd = pcd.scale(1 / transform_json['scale'], center=np.asarray((0, 0, 0)))
-            pcd = pcd.scale(2, center=np.asarray((0, 0, 0)))
-            # pcd = pcd.transform(T)
-        #
-        ## Cloud compare
-        # T = np.asarray([[0.994, -0.007, 0.118, -0.159],
-        #                [-0.008, 0.993, 0.127, -0.168],
-        #                [-0.118, -0.127, 0.986, 0.007],
-        #                [0.000, 0.000, 0.000, 1.000]])
-        # pcd = pcd.transform(T)
-
-        # o3d.visualization.draw_geometries([pcd])
-        pcd_list.update({'sem_only': {
-            'pcd': pcd,
-            'path': str(output_dir / config.load_dir.parts[-3] / 'semantic_only.ply')
-        }})
-
-    # o3d.io.write_point_cloud(str(output_dir / config.load_dir.parts[-3] / 'density.ply'), pcd)
 
     return pcd_list

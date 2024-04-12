@@ -92,7 +92,6 @@ def sample_surface_points(aabb, n, device, noise=False):
     dx_y_z = torch.abs(torch.max(aabb, axis=0).values - torch.min(aabb, axis=0).values)
 
     # Part where the coordinate does not change
-    #constant_axis_part_pos = torch.argmax((corner_1 + corner_2 + corner_3))
     constant_axis_part_pos = int(torch.argmax(torch.logical_and((corner_1 == corner_2), (corner_2 == corner_3)).to(int)))
 
     # Generate meshgrid along XY plane
@@ -118,12 +117,6 @@ def sample_surface_points(aabb, n, device, noise=False):
     plane_vector = torch.asarray([[0, 0, torch.sign(corner_4[constant_axis_part_pos]) * torch.abs(
         corner_1[constant_axis_part_pos]) + torch.abs(corner_4[constant_axis_part_pos])]], dtype=torch.float32,
                                  device=device)
-
-    #if noise:
-    #    surface_points_tensor = surface_points_tensor + torch.normal(
-    #        mean=torch.asarray(0, device=device, dtype=torch.double),
-    #        std=torch.linalg.norm(surface_points_tensor[:10] - surface_points_tensor[1:11]) / 2,
-    #        size=(surface_points_tensor.shape), device=device)
 
     return surface_points_tensor, plane_vector
 
