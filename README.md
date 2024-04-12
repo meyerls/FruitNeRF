@@ -144,6 +144,11 @@ the images using grounded-SAM.
 ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --segmentation-class [Str+Str+Str]
 ```
 
+
+
+<details>
+  <summary><b>Expand for more options</b></summary>
+
 - ```--data [PATH]```: Path the data, either a video file or a directory of images.
 - ```--output-dir [PATH]```: Path to the output directory.
 - ```--segmentation-class [Str+Str+Str+...]]``` Text prompt for segmentation with Grounded SAM. Multiple arguments are also valid.
@@ -154,6 +159,8 @@ ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-
 - ```--skip-colmap```: skips COLMAP and generates transforms.json if possible.
 - ```--skip_image_processing```: skips copying and downscaling of images and only runs COLMAP if possible and enabled.
 - ```--flag_segmentation_image_debug```: saves the masks overlay on rgb images.
+
+</details>
 
 
 ## Training
@@ -175,6 +182,8 @@ ns-train fruit_nerf_big --data {path/to/workspace-dir} --output-dir {path/to/out
 ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --output-dir {path/to/export/dir} --use-bounding-box True --bounding-box-min -1 - 1 -1 --bounding-box-max 1 1 1 --num_rays_per_batch 2000 --num_points_per_side 2000
 ```
 
+<details>
+  <summary><b>Expand for more options</b></summary>
 - `--config {path/to/config.yaml}`: The config.yaml  can be found in the output dir specified during the ns-train.
 - `--bounding-box-min` and `--bounding-box-max`: Values for the bounding box. To find out the best parameters please try out the Crop Viewport in the nerfstudio viewer
 - `--num_rays_per_batch`: Number of rays per batch. This depends on the capability of your GPU.
@@ -183,6 +192,9 @@ ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --ou
 <p align="center" >
     <img src="images/export_image.png" style="width: 200px"/>
 </p>
+
+</details>
+
 
 ## ToDo: Point Cloud Clustering / Fruit Counting
 
