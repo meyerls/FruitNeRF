@@ -22,10 +22,10 @@ location, while the synthetic dataset comprises various fruit types including ap
 mangoes. Additionally, we assess the performance of fruit counting using the foundation model compared to a U-Net.</p>
 
 <p align="center">
-<a href="https://www.fau.eu/"><img style="padding: 10px" height="150px" src="images/FAU.png"> </a>
-<a href="https://www.lgdv.tf.fau.de/"><img style="padding: 10px" height="150px" src="images/vce.svg"> </a>
-<a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="150px" src="images/fraunhofer_iis.svg"> </a>
-<a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="150px" src="images/bamberg.png"> </a>
+<a href="https://www.fau.eu/"><img style="padding: 10px" height="100px" src="images/FAU.png"> </a>
+<a href="https://www.lgdv.tf.fau.de/"><img style="padding: 10px" height="100px" src="images/vce.svg"> </a>
+<a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="100px" src="images/fraunhofer_iis.svg"> </a>
+<a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="100px" src="images/bamberg.png"> </a>
 
 </p>
 ------
