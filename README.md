@@ -1,5 +1,7 @@
 <h1 style="text-align: center;">:apple: :pear: FruitNeRF: A Generalized Framework for Counting Fruits in Neural Radiance Fields :peach: :lemon:</h1>
 
+Lukas Meyer, Andreas Gilson, Ute Schmid, Marc Stamminger <br>
+
 <p align="center">
 <a href="https://meyerls.github.io/fruit_nerf/">🌐[Project Page]</a>
 <a href="https://meyerls.github.io/fruit_nerf/">📄[Paper]</a>
@@ -18,6 +20,17 @@ fruit. We evaluate our methodology using both real-world and synthetic datasets.
 three apple trees with manually counted ground truths, a benchmark apple dataset with one row and ground truth fruit
 location, while the synthetic dataset comprises various fruit types including apple, plum, lemon, pear, peach, and
 mangoes. Additionally, we assess the performance of fruit counting using the foundation model compared to a U-Net.</p>
+
+<p align="center">
+<a href="https://www.fau.eu/"><img style="padding: 10px" height="150px" src="images/FAU.png"> </a>
+<a href="https://www.lgdv.tf.fau.de/"><img style="padding: 10px" height="150px" src="images/vce.svg"> </a>
+<a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="150px" src="images/fraunhofer_iis.svg"> </a>
+<a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="150px" src="images/bamberg.png"> </a>
+
+</p>
+------
+
+
 
 <p align="center">
     <img src="images/fruitnerfsvg_real.png"/>
@@ -138,13 +151,11 @@ If you use ower FruitNeRF dataset you can skip the preparations step and jump to
 ## Prepare own Data
 
 For our data and the Fuji dataset you first have to compute the intrinsic and extrinsic camera parameters and segment
-the images using grounded-SAM.
+the images using grounded-SAM:
 
 ```bash
 ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --segmentation-class [Str+Str+Str]
 ```
-
-
 
 <details>
   <summary><b>Expand for more options</b></summary>
@@ -161,6 +172,11 @@ ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-
 - ```--flag_segmentation_image_debug```: saves the masks overlay on rgb images.
 
 </details>
+
+If you already have **binary** segmentation masks please parse the image folder:
+```bash
+ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --data_semantic {path/to/seg-dir} 
+```
 
 
 ## Training

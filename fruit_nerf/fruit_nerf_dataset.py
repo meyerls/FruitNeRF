@@ -362,7 +362,7 @@ class FruitNerfDataset(ColmapConverterToNerfstudioDataset):
         )
 
         # Save semantic path to transform.json
-        if self.segmentation_class:
+        if self.segmentation_class or self.data_semantic:
             with open(os.path.join(self.output_dir, 'transforms.json')) as f:
                 transform_json = json.load(f)
                 transform_json.update({'semantics': ['stuff', self.segmentation_class]})
@@ -379,6 +379,6 @@ class FruitNerfDataset(ColmapConverterToNerfstudioDataset):
 
 
 if __name__ == '__main__':
-    path = "./_MG_3004_21.jpg"
+    path = "/home/se86kimy/Dropbox/07_data/For5G/24_03_26/Drohne_4KK/DCIM/DJI_202403261424_005/Tree_row_4k_short_multiple_heights/result/images_2/frame_00018.png"
     gs = GroundedSAM()
-    gs.run(image_path=path, output_dir="./test", text_prompt=['apple'], output_filename=Path('test_fuji2.png'))
+    gs.run(image_path=path, output_dir="./test", text_prompt=['tree'], output_filename=Path('test_tree.png'), flag_segmentation_image_debug=True)

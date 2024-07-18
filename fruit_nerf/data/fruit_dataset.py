@@ -68,6 +68,7 @@ class FruitDataset(InputDataset):
 
     def __init__(self, dataparser_outputs: DataparserOutputs, scale_factor: float = 1.0):
         super().__init__(dataparser_outputs, scale_factor)
+
         assert "semantics" in dataparser_outputs.metadata.keys() and isinstance(self.metadata["semantics"],
                                                                                 Semantics), "No semantic istance could be found! Is a semantic folder included in the input folder and transform.json file?"
         self.semantics = self.metadata["semantics"]
