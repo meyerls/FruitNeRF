@@ -26,9 +26,8 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 <a href="https://www.lgdv.tf.fau.de/"><img style="padding: 10px" height="100px" src="images/vce.svg"> </a>
 <a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="100px" src="images/fraunhofer_iis.svg"> </a>
 <a href="https://unit.aist.go.jp/icps/icps-am/en/"><img style="padding: 10px" height="100px" src="images/bamberg.png"> </a>
-
 </p>
-------
+
 
 
 
