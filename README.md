@@ -211,7 +211,7 @@ ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --ou
 </details>
 
 
-## ToDo: Point Cloud Clustering / Fruit Counting
+## Point Cloud Clustering / Fruit Counting
 
 
 ```bash
