@@ -16,7 +16,7 @@ Apple_GT_1024x1024_300 = {
 
 Apple_SAM_1024x1024_300 = {
     "path": "/home/se86kimy/Dropbox/07_data/For5G/Apple_24_08_23/eval/01_apple/sam/semantic_colormap.ply",
-    "remove_outliers_nb_points": 200,
+    "remove_outliers_nb_points": 150,
     "remove_outliers_radius": 0.01,
     "down_sample": 0.001,
     "eps": 0.01,

@@ -49,10 +49,10 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 #### 0. Install Nerfstudio dependencies
 
 [Follow these instructions](https://docs.nerf.studio/quickstart/installation.html) up to and including "
-tinycudann" to install dependencies and create an environment. 
+tinycudann" to install dependencies and create an environment.
 
-**Important**: In Section *Install nerfstudio* please install version **0.3.2** via `pip install nerfstudio==0.3.2` not the latest one!
-
+**Important**: In Section *Install nerfstudio* please install version **0.3.2** via `pip install nerfstudio==0.3.2` not
+the latest one!
 
 #### 1. Clone this repo
 
@@ -161,7 +161,8 @@ ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-
 
 - ```--data [PATH]```: Path the data, either a video file or a directory of images.
 - ```--output-dir [PATH]```: Path to the output directory.
-- ```--segmentation-class [Str+Str+Str+...]]``` Text prompt for segmentation with Grounded SAM. Multiple arguments are also valid.
+- ```--segmentation-class [Str+Str+Str+...]]``` Text prompt for segmentation with Grounded SAM. Multiple arguments are
+  also valid.
 - ```--num_downscales [INT]```: Number of times to downscale the images. Default is 3.
 - ```--text_threshold [FLOAT]``` Threshold for text prompt/class to segment images. Default value is 0.15.
 - ```--box_threshold [FLOAT]``` Threshold for bounding box prediction. Default value is 0.15.
@@ -173,14 +174,15 @@ ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-
 </details>
 
 If you already have **binary** segmentation masks please parse the image folder:
+
 ```bash
 ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --data_semantic {path/to/seg-dir} 
 ```
 
-
 ## Training
 
 #### FruitNerf (~15min)
+
 ```bash
 ns-train fruit_nerf --data {path/to/workspace-dir} --output-dir {path/to/output-dir}
 ```
@@ -210,13 +212,49 @@ ns-export-semantics semantic-pointcloud --load-config {path/to/config.yaml} --ou
 
 </details>
 
-
 ## Point Cloud Clustering / Fruit Counting
 
+Clustering is not integrated into the nerfstudio pipeline. Therefore, we have created a specific cluster
+script (```clustering\run_clustering.py```). 
 
-```bash
-ns-fruits count --data {path/to/semantic-point-cloud}
+If you want to use it for your own data you have to create a config profile first:
+
+```python
+Apple_GT_1024x1024_300 = {
+    "path": "/path/2/extracted/pcd/semantic_colormap.ply",
+    "remove_outliers_nb_points": 200, # Clean pcd
+    "remove_outliers_radius": 0.01, # Clean pcd
+    "down_sample": 0.001, # Voxel downsample for faster computation / clustering
+    "eps": 0.01,
+    "cluster_merge_distance": 0.04, # Merge distance for small clusters
+    "minimum_size_factor": 0.3,
+    "min_samples": 100, # Min cluster point size
+    'template_path': './clustering/apple_template.ply', # Template apple /fruit
+    'apple_template_size': 0.7, # Scale apple template if no gt size is available
+    'gt_cluster': "/path/2/gt/mesh/fruits.obj", # or None
+    "gt_count": 283 # or None
+}
 ```
+
+Afterward perform the Clustering (see more information in ```clustering\run_clustering.py```!):
+
+```python
+Baum = Apple_GT_1024x1024_300
+clustering = Clustering(remove_outliers_nb_points=Baum['remove_outliers_nb_points'],
+                        remove_outliers_radius=Baum['remove_outliers_radius'],
+                        voxel_size_down_sample=Baum['down_sample'],
+                        template_path=Baum['template_path'],
+                        min_samples=Baum['min_samples'],
+                        apple_template_size=Baum['apple_template_size'],
+                        gt_cluster=Baum['gt_cluster'],
+                        cluster_merge_distance=Baum['cluster_merge_distance'],
+                        gt_count=Baum['gt_count']
+                        )
+count = clustering.count(pcd=Baum["path"], eps=Baum['eps'])
+```
+
+For reproducibility, we provide the extracted point clouds for our synthetic and real-world data. From Table I and
+Fig.8. Data can be downloaded from [here]().
 
 # Download Data
 
@@ -244,13 +282,14 @@ Link: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10869455.svg)](https:/
 If you find this useful, please cite the paper!
 <pre id="codecell0">
 @inproceedings{fruitnerf2024,
-&nbsp;author     = { Lukas Meyer, Andreas Gilson, Ute Schmidt, Marc Stamminger},
+&nbsp;author     = {Lukas Meyer, Andreas Gilson, Ute Schmidt, Marc Stamminger},
 &nbsp;title      = {FruitNeRF: A Unified Neural Radiance Field based Fruit Counting Framework},
-&nbsp;booktitle  = {ArXiv},
+&nbsp;booktitle  = {IROS},
 &nbsp;year       = {2024},
  url        = {https://meyerls.github.io/fruit_nerf}
 } </pre>
 
 # ToDo
+
 - [ ] Fix cleanup point cloud clustering
 - [ ] Cleanup code + comments
