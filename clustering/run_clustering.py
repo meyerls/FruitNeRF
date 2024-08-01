@@ -76,7 +76,7 @@ if __name__ == '__main__':
     from clustering.config_real import Fuji_unet, Fuji_unet_big, Fuji_sam, Fuji_sam_big
 
     Baums = [
-        # Fuji_unet, Fuji_unet_big,
+        Fuji_unet, Fuji_unet_big,
         # Fuji_sam, Fuji_sam_big
         # Baum_01_unet, Baum_01_unet_Big, Baum_01_SAM, Baum_01_SAM_Big,
         # Baum_02_unet, Baum_02_unet_Big, Baum_02_SAM, Baum_02_SAM_Big,
