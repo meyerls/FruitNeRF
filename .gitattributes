@@ -1,0 +1,17 @@
+images/ filter=lfs diff=lfs merge=lfs -text
+images/teaser.gif filter=lfs diff=lfs merge=lfs -text
+images/fruitnerfsvg_real.png filter=lfs diff=lfs merge=lfs -text
+images/export_image.png filter=lfs diff=lfs merge=lfs -text
+images/bamberg.png filter=lfs diff=lfs merge=lfs -text
+images/fraunhofer_iis.svg filter=lfs diff=lfs merge=lfs -text
+images/lemon.gif filter=lfs diff=lfs merge=lfs -text
+images/mango.gif filter=lfs diff=lfs merge=lfs -text
+images/row2.jpg filter=lfs diff=lfs merge=lfs -text
+images/teaser_github.mp4 filter=lfs diff=lfs merge=lfs -text
+images/vce.svg filter=lfs diff=lfs merge=lfs -text
+images/apple.gif filter=lfs diff=lfs merge=lfs -text
+images/FAU.png filter=lfs diff=lfs merge=lfs -text
+images/peach.gif filter=lfs diff=lfs merge=lfs -text
+images/pear.gif filter=lfs diff=lfs merge=lfs -text
+images/plum.gif filter=lfs diff=lfs merge=lfs -text
+images/cogsys.png filter=lfs diff=lfs merge=lfs -text
