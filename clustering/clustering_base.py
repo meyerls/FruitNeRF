@@ -470,7 +470,7 @@ class FruitClustering(object):
                     distance = np.linalg.norm(np.asarray(gt_center_copy) - cluster, axis=1)
                     nearest_center_id = np.argmin(distance)
 
-                    if distance[nearest_center_id] < 0.25:  # 0.15
+                    if distance[nearest_center_id] < 0.15:  # 0.15
                         number_of_correctly_counted_objects += 1
                         gt_center_copy = np.delete(gt_center_copy, nearest_center_id, axis=0)
                     else:
