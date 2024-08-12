@@ -288,8 +288,5 @@ If you find this useful, please cite the paper!
 &nbsp;year       = {2024},
  url        = {https://meyerls.github.io/fruit_nerf}
 } </pre>
-
-# ToDo
-
-- [ ] Fix cleanup point cloud clustering
-- [ ] Cleanup code + comments
+=======
+:globe_with_meridians:[[Project Page]](https://meyerls.github.io/fruit_nerf/)  :page_facing_up:[[ Paper]](https://meyerls.github.io/fruit_nerf/)  :file_folder:[[ Dataset]](https://zenodo.org/records/10869455)
