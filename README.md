@@ -257,6 +257,8 @@ For reproducibility, we provide the extracted point clouds for our synthetic and
 Fig.8. Data can be downloaded from [here]().
 
 # Download Data
+To reproduce our counting results you can download the extracted point clouds for every training run. Download can be 
+found here: tbd.
 
 ## Synthetic Dataset
 
