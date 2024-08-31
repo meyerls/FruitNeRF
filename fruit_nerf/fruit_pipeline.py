@@ -131,7 +131,7 @@ class FruitPipeline(Pipeline):
         metrics_dict = self.model.get_metrics_dict(model_outputs, batch)
 
         if self.config.datamanager.camera_optimizer is not None:
-            camera_opt_param_group = self.config.datamanager.camera_optimizer.param_group
+            camera_opt_param_group = self.config.datamanager.camera_optimizer.optimizer.param_group
             if camera_opt_param_group in self.datamanager.get_param_groups():
                 # Report the camera optimization metrics
                 metrics_dict["camera_opt_translation"] = (

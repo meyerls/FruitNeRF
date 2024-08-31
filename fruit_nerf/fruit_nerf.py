@@ -10,7 +10,7 @@ from typing import Dict, List, Tuple, Type, Union
 import numpy as np
 import torch
 from torch.nn import Parameter
-from torchmetrics import PeakSignalNoiseRatio
+from torchmetrics.image import PeakSignalNoiseRatio
 from torchmetrics.functional import structural_similarity_index_measure
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 from torchmetrics import JaccardIndex
@@ -319,8 +319,25 @@ class FruitModel(Model):
     def get_metrics_dict(self, outputs, batch):
         metrics_dict = {}
         image = batch["image"].to(self.device)
-        metrics_dict["psnr"] = self.psnr(outputs["rgb"], image)
+        
+        # Ensure outputs_rgb is always defined
+        outputs_rgb = outputs["rgb"]
+        
+        # Handle channel mismatch
+        if outputs["rgb"].shape[-1] != image.shape[-1]:
+            if outputs["rgb"].shape[-1] == 4 and image.shape[-1] == 3:
+                outputs_rgb = outputs["rgb"][..., :3]  # Use only the RGB channels from the output
+            elif outputs["rgb"].shape[-1] == 3 and image.shape[-1] == 4:
+                image = image[..., :3]  # Use only the RGB channels from the ground truth
+            else:
+                raise ValueError(f"Unexpected channel size in tensors: outputs['rgb'] shape {outputs['rgb'].shape}, image shape {image.shape}")
+        
+        # Compute PSNR
+        metrics_dict["psnr"] = self.psnr(outputs_rgb, image)
+        
+        # Compute distortion loss
         metrics_dict["distortion"] = distortion_loss(outputs["weights_list"], outputs["ray_samples_list"])
+        
         return metrics_dict
 
     def get_image_metrics_and_images(
