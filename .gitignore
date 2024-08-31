@@ -9,6 +9,7 @@ __pycache__/
 *.so
 /segmentation/*
 /registration/*
+/datasets/*
 
 debug/nerf_output.txt
 
