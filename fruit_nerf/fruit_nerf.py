@@ -1,5 +1,5 @@
 """
-FruitNeRF implementation .
+FruitNeRF implementation.
 """
 
 from __future__ import annotations
@@ -13,7 +13,6 @@ from torch.nn import Parameter
 from torchmetrics.image import PeakSignalNoiseRatio
 from torchmetrics.functional import structural_similarity_index_measure
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
-from torchmetrics import JaccardIndex
 
 from nerfstudio.cameras.rays import RayBundle
 from nerfstudio.engine.callbacks import TrainingCallback, TrainingCallbackAttributes, TrainingCallbackLocation
@@ -40,9 +39,8 @@ from nerfstudio.models.base_model import Model
 from nerfstudio.utils import colormaps
 from nerfstudio.data.dataparsers.base_dataparser import Semantics
 from nerfstudio.models.nerfacto import NerfactoModelConfig
-from nerfstudio.field_components.encodings import NeRFEncoding
 
-from fruit_nerf.fruit_field import FruitField, SemanticNeRFField
+from fruit_nerf.fruit_field import FruitField
 from fruit_nerf.components.ray_samplers import UniformSamplerWithNoise
 
 
@@ -59,11 +57,7 @@ class FruitNerfModelConfig(NerfactoModelConfig):
 
 
 class FruitModel(Model):
-    """FruitModel based on Nerfacto model
-
-    Args:
-        config: FruitModel configuration to instantiate model
-    """
+    """FruitModel based on Nerfacto model"""
 
     config: FruitNerfModelConfig
 
@@ -78,10 +72,7 @@ class FruitModel(Model):
         """Set the fields and modules."""
         super().populate_modules()
 
-        if self.config.disable_scene_contraction:
-            scene_contraction = None
-        else:
-            scene_contraction = SceneContraction(order=float("inf"))
+        scene_contraction = SceneContraction(order=float("inf")) if not self.config.disable_scene_contraction else None
 
         # Fields
         self.field = FruitField(
@@ -100,10 +91,11 @@ class FruitModel(Model):
             num_semantic_classes=1,
             pass_semantic_gradients=self.config.pass_semantic_gradients,
         )
-        # Build the proposal network(s)
+
         self.density_fns = []
-        num_prop_nets = self.config.num_proposal_iterations
         self.proposal_networks = torch.nn.ModuleList()
+        num_prop_nets = self.config.num_proposal_iterations
+
         if self.config.use_same_proposal_network:
             assert len(self.config.proposal_net_args_list) == 1, "Only one proposal network is allowed."
             prop_net_args = self.config.proposal_net_args_list[0]
@@ -125,7 +117,7 @@ class FruitModel(Model):
                     implementation=self.config.implementation,
                 )
                 self.proposal_networks.append(network)
-            self.density_fns.extend([network.density_fn for network in self.proposal_networks])
+                self.density_fns.append(network.density_fn)
 
         def update_schedule(step):
             return np.clip(
@@ -134,18 +126,13 @@ class FruitModel(Model):
                 self.config.proposal_update_every,
             )
 
-        # Samplers
-        # Change proposal network initial sampler if uniform
-        initial_sampler = None  # None is for piecewise as default (see ProposalNetworkSampler)
+        initial_sampler = None
         if self.test_mode == 'inference':
-            self.num_inference_samples = None  # int(200)
-            self.proposal_sampler = None  # UniformSamplerWithNoise(num_samples=self.num_inference_samples, single_jitter=True)
+            self.num_inference_samples = None
+            self.proposal_sampler = None
             self.field.spatial_distortion = None
         elif self.config.proposal_initial_sampler == "uniform":
-            # Change proposal network initial sampler if uniform
-            initial_sampler = None  # None is for piecewise as default (see ProposalNetworkSampler)
-            if self.config.proposal_initial_sampler == "uniform":
-                initial_sampler = UniformSampler(single_jitter=self.config.use_single_jitter)
+            initial_sampler = UniformSampler(single_jitter=self.config.use_single_jitter)
         else:
             self.proposal_sampler = ProposalNetworkSampler(
                 num_nerf_samples_per_ray=self.config.num_nerf_samples_per_ray,
@@ -156,96 +143,51 @@ class FruitModel(Model):
                 initial_sampler=initial_sampler,
             )
 
-        # Collider
         self.collider = NearFarCollider(near_plane=self.config.near_plane, far_plane=self.config.far_plane)
 
-        # renderers
+        # Renderers
         self.renderer_rgb = RGBRenderer(background_color=self.config.background_color)
         self.renderer_accumulation = AccumulationRenderer()
         self.renderer_depth = DepthRenderer()
         self.renderer_uncertainty = UncertaintyRenderer()
         self.renderer_semantics = SemanticRenderer()
 
-        # losses
+        # Losses
         self.rgb_loss = MSELoss()
         self.binary_cross_entropy_loss = torch.nn.BCEWithLogitsLoss(reduction="mean")
 
-        # metrics
+        # Metrics
         self.psnr = PeakSignalNoiseRatio(data_range=1.0)
         self.ssim = structural_similarity_index_measure
         self.lpips = LearnedPerceptualImagePatchSimilarity(normalize=True)
 
-    def setup_inference(self, render_rgb, num_inference_samples):
-        self.render_rgb = render_rgb  # True
-        self.num_inference_samples = num_inference_samples  # int(200)
-        self.proposal_sampler = UniformSamplerWithNoise(num_samples=self.num_inference_samples, single_jitter=False)
-        self.field.spatial_distortion = None
-
     def get_param_groups(self) -> Dict[str, List[Parameter]]:
-        param_groups = {}
-        param_groups["proposal_networks"] = list(self.proposal_networks.parameters())
-        param_groups["fields"] = list(self.field.parameters())
-        return param_groups
-
-    def get_training_callbacks(
-            self, training_callback_attributes: TrainingCallbackAttributes
-    ) -> List[TrainingCallback]:
-        callbacks = []
-        if self.config.use_proposal_weight_anneal:
-            # anneal the weights of the proposal network before doing PDF sampling
-            N = self.config.proposal_weights_anneal_max_num_iters
-
-            def set_anneal(step):
-                # https://arxiv.org/pdf/2111.12077.pdf eq. 18
-                train_frac = np.clip(step / N, 0, 1)
-
-                def bias(x, b):
-                    return b * x / ((b - 1) * x + 1)
-
-                anneal = bias(train_frac, self.config.proposal_weights_anneal_slope)
-                self.proposal_sampler.set_anneal(anneal)
-
-            callbacks.append(
-                TrainingCallback(
-                    where_to_run=[TrainingCallbackLocation.BEFORE_TRAIN_ITERATION],
-                    update_every_num_iters=1,
-                    func=set_anneal,
-                )
-            )
-            callbacks.append(
-                TrainingCallback(
-                    where_to_run=[TrainingCallbackLocation.AFTER_TRAIN_ITERATION],
-                    update_every_num_iters=1,
-                    func=self.proposal_sampler.step_cb,
-                )
-            )
-        return callbacks
+        return {
+            "proposal_networks": list(self.proposal_networks.parameters()),
+            "fields": list(self.field.parameters())
+        }
 
     def get_inference_outputs(self, ray_bundle: RayBundle, render_rgb: bool = False):
         outputs = {}
-
         ray_samples = self.proposal_sampler(ray_bundle)
         field_outputs = self.field.forward(ray_samples, render_rgb=render_rgb)
 
         if render_rgb:
             outputs["rgb"] = field_outputs[FieldHeadNames.RGB]
 
-        outputs['point_location'] = ray_samples.frustums.get_positions()
+        outputs["point_location"] = ray_samples.frustums.get_positions()
         outputs["semantics"] = field_outputs[FieldHeadNames.SEMANTICS][..., 0]
         outputs["density"] = field_outputs[FieldHeadNames.DENSITY][..., 0]
 
         semantic_labels = torch.sigmoid(outputs["semantics"])
         threshold = 0.9
         semantic_labels = torch.heaviside(semantic_labels - threshold, torch.tensor(0.)).to(torch.long)
-
         outputs["semantics_colormap"] = semantic_labels
 
         return outputs
 
-    def get_outputs(self, ray_bundle: RayBundle):  #
-
+    def get_outputs(self, ray_bundle: RayBundle):
         ray_samples, weights_list, ray_samples_list = self.proposal_sampler(ray_bundle, density_fns=self.density_fns)
-
         field_outputs = self.field.forward(ray_samples)
 
         if self.config.use_gradient_scaling:
@@ -259,25 +201,25 @@ class FruitModel(Model):
         depth = self.renderer_depth(weights=weights, ray_samples=ray_samples)
         accumulation = self.renderer_accumulation(weights=weights)
 
-        outputs = {"rgb": rgb, "accumulation": accumulation, "depth": depth, "weights_list": weights_list,
-                   "ray_samples_list": ray_samples_list}
+        outputs = {
+            "rgb": rgb,
+            "accumulation": accumulation,
+            "depth": depth,
+            "weights_list": weights_list,
+            "ray_samples_list": ray_samples_list
+        }
 
         for i in range(self.config.num_proposal_iterations):
             outputs[f"prop_depth_{i}"] = self.renderer_depth(weights=weights_list[i], ray_samples=ray_samples_list[i])
 
-        # semantics
-        semantic_weights = weights
-        if not self.config.pass_semantic_gradients:
-            semantic_weights = semantic_weights.detach()
-        outputs["semantics"] = self.renderer_semantics(
-            field_outputs[FieldHeadNames.SEMANTICS], weights=semantic_weights
-        )
+        # Semantics
+        semantic_weights = weights if self.config.pass_semantic_gradients else weights.detach()
+        outputs["semantics"] = self.renderer_semantics(field_outputs[FieldHeadNames.SEMANTICS], weights=semantic_weights)
 
-        # semantics colormaps
+        # Semantics colormaps
         semantic_labels = torch.sigmoid(outputs["semantics"].detach())
         threshold = 0.9
         semantic_labels = torch.heaviside(semantic_labels - threshold, torch.tensor(0.)).to(torch.long)
-
         outputs["semantics_colormap"] = self.colormap.to(self.device)[semantic_labels]
 
         return outputs
@@ -285,8 +227,23 @@ class FruitModel(Model):
     def get_loss_dict(self, outputs, batch, metrics_dict=None):
         loss_dict = {}
         image = batch["image"].to(self.device)
-        loss_dict["rgb_loss"] = self.rgb_loss(image, outputs["rgb"])
-
+        
+        # Ensure outputs_rgb is always defined
+        outputs_rgb = outputs["rgb"]
+        
+        # Handle channel mismatch
+        if outputs["rgb"].shape[-1] != image.shape[-1]:
+            if outputs["rgb"].shape[-1] == 4 and image.shape[-1] == 3:
+                outputs_rgb = outputs["rgb"][..., :3]  # Use only the RGB channels from the output
+            elif outputs["rgb"].shape[-1] == 3 and image.shape[-1] == 4:
+                image = image[..., :3]  # Use only the RGB channels from the ground truth
+            else:
+                raise ValueError(f"Unexpected channel size in tensors: outputs['rgb'] shape {outputs['rgb'].shape}, image shape {image.shape}")
+        
+        # Calculate RGB loss
+        loss_dict["rgb_loss"] = self.rgb_loss(image, outputs_rgb)
+        
+        # Other loss calculations can go here
         loss_dict["semantics_loss"] = self.config.semantic_loss_weight * self.binary_cross_entropy_loss(
             outputs["semantics"], batch["fruit_mask"]
         )
@@ -294,27 +251,8 @@ class FruitModel(Model):
             loss_dict["interlevel_loss"] = self.config.interlevel_loss_mult * interlevel_loss(
                 outputs["weights_list"], outputs["ray_samples_list"]
             )
-
+        
         return loss_dict
-
-    def forward(self, ray_bundle: RayBundle) -> Dict[str, Union[torch.Tensor, List]]:
-        """Run forward starting with a ray bundle. This outputs different things depending on the configuration
-        of the model and whether or not the batch is provided (whether or not we are training basically)
-
-        Args:
-            ray_bundle: containing all the information needed to render that ray latents included
-        """
-
-        if self.collider is not None:
-            ray_bundle = self.collider(ray_bundle)
-
-        if self.test_mode == 'inference':
-            # fruit_nerf_output = self.get_inference_outputs(ray_bundle, self.render_rgb)
-            fruit_nerf_output = self.get_inference_outputs(ray_bundle, True)
-        else:
-            fruit_nerf_output = self.get_outputs(ray_bundle)
-
-        return fruit_nerf_output
 
     def get_metrics_dict(self, outputs, batch):
         metrics_dict = {}
@@ -379,15 +317,11 @@ class FruitModel(Model):
             images_dict[key] = prop_depth_i
 
         # semantics
-        # semantic_labels = torch.argmax(torch.nn.functional.softmax(outputs["semantics"], dim=-1), dim=-1)
         semantic_labels = torch.sigmoid(outputs["semantics"])
-        images_dict[
-            "semantics_colormap"] = semantic_labels
+        images_dict["semantics_colormap"] = semantic_labels
 
         # valid mask
         images_dict["fruit_mask"] = batch["fruit_mask"].repeat(1, 1, 3).to(self.device)
-        # batch["fruit_mask"][batch["fruit_mask"] < 0.1] = 0
-        # batch["fruit_mask"][batch["fruit_mask"] >= 0.1] = 1
 
         from torchmetrics.classification import BinaryJaccardIndex
         metric = BinaryJaccardIndex().to(self.device)
@@ -396,7 +330,3 @@ class FruitModel(Model):
         metrics_dict["iou"] = float(iou)
 
         return metrics_dict, images_dict
-
-
-class FruitModelMLP(Model):
-    pass
