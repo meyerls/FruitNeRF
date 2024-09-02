@@ -125,6 +125,7 @@ Download pretrained weights
 cd .. # Download into grounded_sam
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+wget https://huggingface.co/lkeab/hq-sam/resolve/main/sam_hq_vit_h.pth
 ```
 
 Install SAM-HQ

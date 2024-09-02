@@ -1,32 +1,21 @@
 """
-Fruit tamanager.
+FruitDataManager implementation.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import (
-    Dict,
-    Literal,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Dict, Literal, Optional, Tuple, Type, Union
 
 import torch
+from torch.nn import Parameter
 
 from typing_extensions import TypeVar
 
 from nerfstudio.cameras.rays import RayBundle
-
 from nerfstudio.data.dataparsers.base_dataparser import DataparserOutputs
-from nerfstudio.data.pixel_samplers import (
-    PixelSampler,
-)
-
+from nerfstudio.data.pixel_samplers import PixelSampler
 from nerfstudio.data.datamanagers.base_datamanager import VanillaDataManager, VanillaDataManagerConfig
-
 from fruit_nerf.components.ray_generators import OrthographicRayGenerator
 from fruit_nerf.data.fruit_dataset import FruitDataset
 
@@ -80,21 +69,14 @@ def sample_surface_points(aabb, n, device, noise=False):
     Returns:
         torch tensor: Tensor of shape (num_points, 3) containing the sampled 3D coordinates.
     """
-    # select three corners (must be adjacent!)
     corner_1 = aabb[0]  # x
     corner_2 = aabb[1]  # y
     corner_3 = aabb[2]  # z
 
-    # Check if elements are to far away (check if adjacent)
-    # assert torch.abs(torch.sum(corner_1 - corner_2)) == 2.0
-    # assert torch.abs(torch.sum(corner_1 - corner_3)) == 2.0
-
     dx_y_z = torch.abs(torch.max(aabb, axis=0).values - torch.min(aabb, axis=0).values)
 
-    # Part where the coordinate does not change
     constant_axis_part_pos = int(torch.argmax(torch.logical_and((corner_1 == corner_2), (corner_2 == corner_3)).to(int)))
 
-    # Generate meshgrid along XY plane
     start_x_pos = torch.argmax(torch.abs(corner_1 - corner_2))
     x = torch.linspace(corner_1[start_x_pos], corner_2[start_x_pos],
                        int(dx_y_z[0] / dx_y_z[constant_axis_part_pos] * n), dtype=torch.float32, device=device)
@@ -104,13 +86,11 @@ def sample_surface_points(aabb, n, device, noise=False):
 
     xx, yy = torch.meshgrid(x, y)
 
-    # Flatten the meshgrid and set Z coordinate to the minimum Z value of the AABB
     surface_points = torch.column_stack(
         (xx.flatten(),
          yy.flatten(),
          torch.full_like(xx.flatten(), corner_3[constant_axis_part_pos])))
 
-    # Convert to torch tensor
     surface_points_tensor = surface_points.clone()
 
     corner_4 = aabb[-1]
@@ -122,17 +102,7 @@ def sample_surface_points(aabb, n, device, noise=False):
 
 
 class FruitDataManager(VanillaDataManager):
-    """Basic stored data manager implementation.
-
-    This is pretty much a port over from our old dataloading utilities, and is a little jank
-    under the hood. We may clean this up a little bit under the hood with more standard dataloading
-    components that can be strung together, but it can be just used as a black box for now since
-    only the constructor is likely to change in the future, or maybe passing in step number to the
-    next_train and next_eval functions.
-
-    Args:
-        config: the DataManagerConfig used to instantiate class
-    """
+    """FruitDataManager implementation."""
 
     config: FruitDataManagerConfig
     train_dataset: TDataset
