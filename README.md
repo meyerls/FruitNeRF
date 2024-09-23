@@ -153,7 +153,7 @@ For our data and the Fuji dataset you first have to compute the intrinsic and ex
 the images using grounded-SAM:
 
 ```bash
-ns-prepocess-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --segmentation-class [Str+Str+Str]
+ns-process-fruit-data --data {path/to/image-dir} --output-dir {path/to/output-dir} --segmentation-class [Str+Str+Str]
 ```
 
 <details>
