@@ -69,7 +69,9 @@ fruit_nerf_method_big = MethodSpecification(
         mixed_precision=True,
         pipeline=FruitPipelineConfig(
             datamanager=FruitDataManagerConfig(
-                dataparser=FruitNerfDataParserConfig(),
+                train_num_images_to_sample_from=200,
+                train_num_times_to_repeat_images=1000,
+                dataparser=FruitNerfDataParserConfig(train_split_fraction=0.99),
                 train_num_rays_per_batch=4096 * 2,
                 eval_num_rays_per_batch=4096,
                 camera_optimizer=CameraOptimizerConfig(

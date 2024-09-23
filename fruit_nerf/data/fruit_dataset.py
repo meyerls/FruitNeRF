@@ -69,8 +69,7 @@ class FruitDataset(InputDataset):
     def __init__(self, dataparser_outputs: DataparserOutputs, scale_factor: float = 1.0):
         super().__init__(dataparser_outputs, scale_factor)
 
-        assert "semantics" in dataparser_outputs.metadata.keys() and isinstance(self.metadata["semantics"],
-                                                                                Semantics), "No semantic istance could be found! Is a semantic folder included in the input folder and transform.json file?"
+        assert "semantics" in dataparser_outputs.metadata.keys() and isinstance(self.metadata["semantics"], Semantics), "No semantic instance could be found! Is a semantic folder included in the input folder and transform.json file?"
         self.semantics = self.metadata["semantics"]
         self.mask_indices = torch.tensor(
             [self.semantics.classes.index(mask_class) for mask_class in self.semantics.mask_classes]

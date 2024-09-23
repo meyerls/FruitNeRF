@@ -259,7 +259,10 @@ class FruitModel(Model):
         depth = self.renderer_depth(weights=weights, ray_samples=ray_samples)
         accumulation = self.renderer_accumulation(weights=weights)
 
-        outputs = {"rgb": rgb, "accumulation": accumulation, "depth": depth, "weights_list": weights_list,
+        outputs = {"rgb": rgb,
+                   "accumulation": accumulation,
+                   "depth": depth,
+                   "weights_list": weights_list,
                    "ray_samples_list": ray_samples_list}
 
         for i in range(self.config.num_proposal_iterations):

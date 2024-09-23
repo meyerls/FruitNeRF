@@ -15,3 +15,7 @@ images/peach.gif filter=lfs diff=lfs merge=lfs -text
 images/pear.gif filter=lfs diff=lfs merge=lfs -text
 images/plum.gif filter=lfs diff=lfs merge=lfs -text
 images/cogsys.png filter=lfs diff=lfs merge=lfs -text
+clustering/apple_template.ply filter=lfs diff=lfs merge=lfs -text
+clustering/lemon_template.ply filter=lfs diff=lfs merge=lfs -text
+clustering/peach_template.ply filter=lfs diff=lfs merge=lfs -text
+clustering/pear_template.ply filter=lfs diff=lfs merge=lfs -text
