@@ -248,6 +248,27 @@ class FruitModel(Model):
             outputs[output_name] = torch.cat(outputs_list).view(image_height, image_width, -1)  # type: ignore
         return outputs
 
+    def get_export_outputs(self, ray_bundle: RayBundle):
+        outputs = {}
+
+        ray_samples = self.proposal_sampler(ray_bundle)
+        field_outputs = self.field.forward(ray_samples)
+
+        outputs["rgb"] = field_outputs[FieldHeadNames.RGB]
+
+        outputs['point_location'] = ray_samples.frustums.get_positions()
+        outputs["semantics"] = field_outputs[FieldHeadNames.SEMANTICS][..., 0]
+        outputs["density"] = field_outputs[FieldHeadNames.DENSITY][..., 0]
+
+        semantic_labels = torch.sigmoid(outputs["semantics"])
+        threshold = 0.9
+        semantic_labels = torch.heaviside(semantic_labels - threshold, torch.tensor(0.)).to(torch.long)
+
+        outputs["semantics_colormap"] = semantic_labels
+
+        return outputs
+
+
     def get_inference_outputs(self, ray_bundle: RayBundle):
         outputs = {}
 
@@ -364,6 +385,9 @@ class FruitModel(Model):
         if self.test_mode == 'inference':
             # fruit_nerf_output = self.get_inference_outputs(ray_bundle, self.render_rgb)
             fruit_nerf_output = self.get_inference_outputs(ray_bundle)
+        elif self.test_mode == 'export':
+            # fruit_nerf_output = self.get_inference_outputs(ray_bundle, self.render_rgb)
+            fruit_nerf_output = self.get_export_outputs(ray_bundle)
         else:
             fruit_nerf_output = self.get_outputs(ray_bundle)
 
