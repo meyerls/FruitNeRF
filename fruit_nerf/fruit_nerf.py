@@ -3,6 +3,7 @@ FruitNeRF implementation .
 """
 
 from __future__ import annotations
+from collections import defaultdict
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Type, Union
@@ -137,11 +138,11 @@ class FruitModel(Model):
         # Samplers
         # Change proposal network initial sampler if uniform
         initial_sampler = None  # None is for piecewise as default (see ProposalNetworkSampler)
-        if self.test_mode == 'inference':
-            self.num_inference_samples = None  # int(200)
-            self.proposal_sampler = None  # UniformSamplerWithNoise(num_samples=self.num_inference_samples, single_jitter=True)
-            self.field.spatial_distortion = None
-        elif self.config.proposal_initial_sampler == "uniform":
+        #if self.test_mode == 'inference':
+        #    self.num_inference_samples = None  # int(200)
+        #    self.proposal_sampler = None  # UniformSamplerWithNoise(num_samples=self.num_inference_samples, single_jitter=True)
+        #    self.field.spatial_distortion = None
+        if self.config.proposal_initial_sampler == "uniform":
             # Change proposal network initial sampler if uniform
             initial_sampler = None  # None is for piecewise as default (see ProposalNetworkSampler)
             if self.config.proposal_initial_sampler == "uniform":
@@ -221,24 +222,73 @@ class FruitModel(Model):
             )
         return callbacks
 
-    def get_inference_outputs(self, ray_bundle: RayBundle, render_rgb: bool = False):
+    @torch.no_grad()
+    def get_outputs_for_camera_ray_bundle(self, camera_ray_bundle: RayBundle) -> Dict[str, torch.Tensor]:
+        """Takes in camera parameters and computes the output of the model.
+
+        Args:
+            camera_ray_bundle: ray bundle to calculate outputs over
+        """
+        num_rays_per_chunk = self.config.eval_num_rays_per_chunk
+        image_height, image_width = camera_ray_bundle.origins.shape[:2]
+        num_rays = len(camera_ray_bundle)
+        outputs_lists = defaultdict(list)
+        for i in range(0, num_rays, num_rays_per_chunk):
+            start_idx = i
+            end_idx = i + num_rays_per_chunk
+            ray_bundle = camera_ray_bundle.get_row_major_sliced_ray_bundle(start_idx, end_idx)
+            outputs = self.forward(ray_bundle=ray_bundle)
+            for output_name, output in outputs.items():  # type: ignore
+                if not torch.is_tensor(output):
+                    # TODO: handle lists of tensors as well
+                    continue
+                outputs_lists[output_name].append(output.cpu())
+        outputs = {}
+        for output_name, outputs_list in outputs_lists.items():
+            outputs[output_name] = torch.cat(outputs_list).view(image_height, image_width, -1)  # type: ignore
+        return outputs
+
+    def get_inference_outputs(self, ray_bundle: RayBundle):
         outputs = {}
 
-        ray_samples = self.proposal_sampler(ray_bundle)
-        field_outputs = self.field.forward(ray_samples, render_rgb=render_rgb)
 
-        if render_rgb:
-            outputs["rgb"] = field_outputs[FieldHeadNames.RGB]
+        ray_samples, weights_list, ray_samples_list = self.proposal_sampler(ray_bundle, density_fns=self.density_fns)
 
-        outputs['point_location'] = ray_samples.frustums.get_positions()
-        outputs["semantics"] = field_outputs[FieldHeadNames.SEMANTICS][..., 0]
-        outputs["density"] = field_outputs[FieldHeadNames.DENSITY][..., 0]
+        field_outputs = self.field.forward(ray_samples)
 
-        semantic_labels = torch.sigmoid(outputs["semantics"])
+        if self.config.use_gradient_scaling:
+            field_outputs = scale_gradients_by_distance_squared(field_outputs, ray_samples)
+
+        weights = ray_samples.get_weights(field_outputs[FieldHeadNames.DENSITY])
+        weights_list.append(weights)
+        ray_samples_list.append(ray_samples)
+
+        rgb = self.renderer_rgb(rgb=field_outputs[FieldHeadNames.RGB], weights=weights)
+        depth = self.renderer_depth(weights=weights, ray_samples=ray_samples)
+        accumulation = self.renderer_accumulation(weights=weights)
+
+        outputs = {"rgb": rgb,
+                   "accumulation": accumulation,
+                   "depth": depth,
+                   "weights_list": weights_list,
+                   "ray_samples_list": ray_samples_list}
+
+        for i in range(self.config.num_proposal_iterations):
+            outputs[f"prop_depth_{i}"] = self.renderer_depth(weights=weights_list[i], ray_samples=ray_samples_list[i])
+
+        # semantics
+        semantic_weights = weights
+        if not self.config.pass_semantic_gradients:
+            semantic_weights = semantic_weights.detach()
+        outputs["semantics"] = self.renderer_semantics(
+            field_outputs[FieldHeadNames.SEMANTICS], weights=semantic_weights
+        )
+
+        # semantics colormaps
+        semantic_labels = torch.sigmoid(outputs["semantics"].detach())
         threshold = 0.9
         semantic_labels = torch.heaviside(semantic_labels - threshold, torch.tensor(0.)).to(torch.long)
-
-        outputs["semantics_colormap"] = semantic_labels
+        outputs["semantics_colormap"] = self.colormap.to(self.device)[semantic_labels].repeat(1, 3)
 
         return outputs
 
@@ -313,7 +363,7 @@ class FruitModel(Model):
 
         if self.test_mode == 'inference':
             # fruit_nerf_output = self.get_inference_outputs(ray_bundle, self.render_rgb)
-            fruit_nerf_output = self.get_inference_outputs(ray_bundle, True)
+            fruit_nerf_output = self.get_inference_outputs(ray_bundle)
         else:
             fruit_nerf_output = self.get_outputs(ray_bundle)
 

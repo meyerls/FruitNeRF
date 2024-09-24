@@ -29,8 +29,6 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 </p>
 
 
-
-
 <p align="center">
     <img src="images/fruitnerfsvg_real.png"/>
 </p>
@@ -38,6 +36,11 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 <!--p align="center">
     <img src="images/teaser.gif" style="width: 512px"/>
 </p-->
+
+# :loudspeaker: News
+
+* 12.08.2024: Paper is available on [Arxiv](https://arxiv.org/abs/2408.06190).
+* 30.06.2024: Paper got accepted to IROS.
 
 # Installation
 

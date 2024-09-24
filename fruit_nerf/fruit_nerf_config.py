@@ -54,7 +54,7 @@ fruit_nerf_method = MethodSpecification(
                 "scheduler": ExponentialDecaySchedulerConfig(lr_final=0.0001, max_steps=200000),
             },
         },
-        viewer=ViewerConfig(num_rays_per_chunk=1 << 15),
+        viewer=ViewerConfig(num_rays_per_chunk=1 << 13),
         vis="viewer",
     ),
     description="Base config for FruitNeRF",

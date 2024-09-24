@@ -205,30 +205,29 @@ class FruitField(Field):
         x = self.mlp_semantics(semantics_input).view(*ray_samples.shape, -1).to(semantics_input).to(torch.float32)
         outputs[FieldHeadNames.SEMANTICS] = self.field_head_semantics(x)
 
-        if render_rgb:
-            directions = shift_directions_for_tcnn(ray_samples.frustums.directions)
-            directions_flat = directions.view(-1, 3)
-            d = self.direction_encoding(directions_flat)
-            outputs_shape = ray_samples.frustums.directions.shape[:-1]
+        directions = shift_directions_for_tcnn(ray_samples.frustums.directions)
+        directions_flat = directions.view(-1, 3)
+        d = self.direction_encoding(directions_flat)
+        outputs_shape = ray_samples.frustums.directions.shape[:-1]
 
-            # embedded_appearance = torch.zeros(
-            #    (*directions.shape[:-1], self.appearance_embedding_dim), device=directions.device
-            # )
+        # embedded_appearance = torch.zeros(
+        #    (*directions.shape[:-1], self.appearance_embedding_dim), device=directions.device
+        # )
 
-            embedded_appearance = torch.ones(
-                (*directions.shape[:-1], self.appearance_embedding_dim), device=directions.device
-            ) * self.embedding_appearance.mean(dim=0)
+        embedded_appearance = torch.ones(
+            (*directions.shape[:-1], self.appearance_embedding_dim), device=directions.device
+        ) * self.embedding_appearance.mean(dim=0)
 
-            h = torch.cat(
-                [
-                    d,
-                    density_embedding.view(-1, self.geo_feat_dim),
-                    embedded_appearance.view(-1, self.appearance_embedding_dim),
-                ],
-                dim=-1,
-            )
-            rgb = self.mlp_head(h).view(*outputs_shape, -1).to(directions)
-            outputs.update({FieldHeadNames.RGB: rgb})
+        h = torch.cat(
+            [
+                d,
+                density_embedding.view(-1, self.geo_feat_dim),
+                embedded_appearance.view(-1, self.appearance_embedding_dim),
+            ],
+            dim=-1,
+        )
+        rgb = self.mlp_head(h).view(*outputs_shape, -1).to(directions)
+        outputs.update({FieldHeadNames.RGB: rgb})
 
         return outputs
 
@@ -281,7 +280,7 @@ class FruitField(Field):
 
         return outputs
 
-    def forward(self, ray_samples: RaySamples, render_rgb: bool = False) -> Dict[FieldHeadNames, Tensor]:
+    def forward(self, ray_samples: RaySamples) -> Dict[FieldHeadNames, Tensor]:
         """Evaluates the field at points along the ray.
 
         Args:
@@ -293,8 +292,7 @@ class FruitField(Field):
         # Get appearance vector and semantic vector
         if self.test_mode == 'inference':
             field_outputs = self.get_inference_outputs(ray_samples=ray_samples,
-                                                       density_embedding=density_embedding,
-                                                       render_rgb=render_rgb)
+                                                       density_embedding=density_embedding)
         else:
             field_outputs = self.get_outputs(ray_samples=ray_samples,
                                              density_embedding=density_embedding)
