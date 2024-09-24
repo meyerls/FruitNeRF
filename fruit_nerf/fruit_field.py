@@ -290,7 +290,7 @@ class FruitField(Field):
         density, density_embedding = self.get_density(ray_samples)
 
         # Get appearance vector and semantic vector
-        if self.test_mode == 'inference':
+        if self.test_mode == 'inference' or self.test_mode == 'export':
             field_outputs = self.get_inference_outputs(ray_samples=ray_samples,
                                                        density_embedding=density_embedding)
         else:

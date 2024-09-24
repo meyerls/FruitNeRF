@@ -83,7 +83,7 @@ class ExportSemanticPointCloud(Exporter):
         if not self.output_dir.exists():
             self.output_dir.mkdir(parents=True)
 
-        config, pipeline, _, _ = eval_setup(self.load_config, test_mode='inference')
+        config, pipeline, _, _ = eval_setup(self.load_config, test_mode='export')
 
         # Increase the batchsize to speed up the evaluation.
         assert isinstance(pipeline.datamanager, VanillaDataManager)

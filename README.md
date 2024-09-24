@@ -1,6 +1,12 @@
 <h1 style="text-align: center;">:apple: :pear: FruitNeRF: A Generalized Framework for Counting Fruits in Neural Radiance Fields :peach: :lemon:</h1>
 
-Lukas Meyer, Andreas Gilson, Ute Schmid, Marc Stamminger <br>
+
+<p align="center">
+<a href="https://meyerls.github.io/">Lukas Meyer, </a>
+<a href="https://scholar.google.com/citations?user=h84gW6QAAAAJ&hl=de">Andreas Gilson, </a>
+<a href="https://scholar.google.com/citations?user=fJXIVKsAAAAJ&hl=en">Ute Schmid, </a>
+<a href="https://scholar.google.com/citations?hl=de&user=cx4AaqoAAAAJ">Marc Stamminger</a>
+</p>
 
 <p align="center">
 <a href="https://meyerls.github.io/fruit_nerf/">🌐[Project Page]</a>
