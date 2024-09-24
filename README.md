@@ -45,6 +45,7 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 
 # :loudspeaker: News
 
+* 24.09.2024: Thanks to [johnnynunez](https://github.com/johnnynunez) for upgrading to nerfstudio v1.1.4 (Branch [ns-1.1.4](https://github.com/meyerls/FruitNeRF/tree/ns-1.1.4))
 * 12.08.2024: Paper is available on [Arxiv](https://arxiv.org/abs/2408.06190).
 * 30.06.2024: Paper got accepted to IROS.
 
