@@ -35,7 +35,7 @@ from nerfstudio.field_components.field_heads import (
 )
 from nerfstudio.field_components.mlp import MLP
 from nerfstudio.field_components.spatial_distortions import SpatialDistortion
-from nerfstudio.fields.base_field import Field, shift_directions_for_tcnn
+from nerfstudio.fields.base_field import Field, get_normalized_directions
 
 from fruit_nerf.components.field_heads import SemanticFieldHead
 
@@ -205,7 +205,7 @@ class FruitField(Field):
         x = self.mlp_semantics(semantics_input).view(*ray_samples.shape, -1).to(semantics_input).to(torch.float32)
         outputs[FieldHeadNames.SEMANTICS] = self.field_head_semantics(x)
 
-        directions = shift_directions_for_tcnn(ray_samples.frustums.directions)
+        directions = get_normalized_directions(ray_samples.frustums.directions)
         directions_flat = directions.view(-1, 3)
         d = self.direction_encoding(directions_flat)
         outputs_shape = ray_samples.frustums.directions.shape[:-1]
@@ -240,7 +240,7 @@ class FruitField(Field):
         if ray_samples.camera_indices is None:
             raise AttributeError("Camera indices are not provided.")
         camera_indices = ray_samples.camera_indices.squeeze()
-        directions = shift_directions_for_tcnn(ray_samples.frustums.directions)
+        directions = get_normalized_directions(ray_samples.frustums.directions)
         directions_flat = directions.view(-1, 3)
         d = self.direction_encoding(directions_flat)
 
