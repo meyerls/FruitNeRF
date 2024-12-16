@@ -145,6 +145,25 @@ class FruitPipeline(Pipeline):
 
         return model_outputs, loss_dict, metrics_dict
 
+    def get_eval_loss_dict(self, step: int):
+        """This function gets your evaluation loss dict. It needs to get the data
+        from the DataManager and feed it to the model's forward function
+
+        Args:
+            step: current iteration step
+        """
+        self.eval()
+        if self.world_size > 1:
+            assert self.datamanager.eval_sampler is not None
+            self.datamanager.eval_sampler.set_epoch(step)
+        ray_bundle, batch = self.datamanager.next_eval(step)
+        model_outputs = self.model(ray_bundle)
+        metrics_dict = self.model.get_metrics_dict(model_outputs, batch)
+        loss_dict = self.model.get_loss_dict(model_outputs, batch, metrics_dict)
+        self.train()
+        return model_outputs, loss_dict, metrics_dict
+
+
     def forward(self):
         """Blank forward method
 

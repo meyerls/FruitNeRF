@@ -39,7 +39,7 @@ fruit_nerf_method = MethodSpecification(
                 camera_optimizer=CameraOptimizerConfig(
                     mode="SO3xR3",
                     optimizer=AdamOptimizerConfig(lr=6e-4, eps=1e-8, weight_decay=1e-2),
-                    scheduler=ExponentialDecaySchedulerConfig(lr_final=6e-6, max_steps=200000),
+                    scheduler=ExponentialDecaySchedulerConfig(lr_final=6e-6, warmup_steps=20_000,max_steps=200_000),
                 ),
             ),
             model=FruitNerfModelConfig(eval_num_rays_per_chunk=1 << 15),

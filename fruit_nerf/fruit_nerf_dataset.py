@@ -61,7 +61,7 @@ class GroundedSAM(BaseImageSegmentation):
         self.sam_hq_checkpoint_h = weights_base_path / 'grounded_sam/sam_hq_vit_h.pth'
         self.sam_hq_checkpoint_l = weights_base_path / 'grounded_sam/sam_hq_vit_l.pth'
 
-        self.SAM_ENCODER_VERSION = "vit_h"
+        self.SAM_ENCODER_VERSION = "vit_l"
 
         if self.SAM_ENCODER_VERSION == "vit_h":
             self.sam_hq_checkpoint = self.sam_hq_checkpoint_h
@@ -181,9 +181,9 @@ class GroundedSAM(BaseImageSegmentation):
         # annotated_image_rgb = mask_annotator.annotate(scene=image.copy(), detections=detections)
         annotated_image = mask_annotator.annotate(scene=np.zeros_like(image), detections=detections)
 
-        if flag_segmentation_image_debug:
-            box_annotator = sv.BoxAnnotator()
-            annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections, labels=labels)
+        #if flag_segmentation_image_debug:
+        #    box_annotator = sv.BoxAnnotator()
+        #    annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections)#, labels=labels)
 
         mask_path = os.path.join(output_dir, output_filename.name)
         mask = np.uint8(annotated_image.clip(0, 1).sum(axis=-1)) * 255
@@ -191,7 +191,7 @@ class GroundedSAM(BaseImageSegmentation):
 
         if flag_segmentation_image_debug:
             annotated_image = mask_annotator.annotate(scene=image.copy(), detections=detections)
-            annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections, labels=labels)
+            annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections)#, labels=labels)
             annotated_image_path = os.path.join(output_dir, "overlay_" + output_filename.name)
             cv2.imwrite(annotated_image_path, annotated_image)
 
@@ -233,11 +233,11 @@ class FruitNerfDataset(ColmapConverterToNerfstudioDataset):
 
     segmentation_class: str = None
     """Define text prompt/class to segment images. Currently grounded SAM is implemented"""
-    text_threshold: float = 0.15
+    text_threshold: float = 0.25#0.15
     """Threshold for text prompt/class to segment images. """
-    box_threshold: float = 0.15
+    box_threshold: float = 0.25#0.15
     """Threshold for bounding box prediction. """
-    flag_segmentation_image_debug: bool = False
+    flag_segmentation_image_debug: bool = True
     """If True, also the masks overlay on rgb images will be saved."""
     data_semantic: Optional[Union[Path, str, bool]] = False
     """Define path to pre computed semantic masks."""
@@ -367,7 +367,12 @@ class FruitNerfDataset(ColmapConverterToNerfstudioDataset):
                 transform_json = json.load(f)
                 transform_json.update({'semantics': ['stuff', self.segmentation_class]})
                 for frame in transform_json['frames']:
-                    frame.update({'semantic_path': os.path.join(self.semantic_dir.name, Path(frame['file_path']).name)})
+                    #semantic_file_name = Path(frame['file_path'])
+                    #image_file_name = Path(frame['file_path'])
+                    semantic_file_name = semantics_rename_map_paths[Path((self.data_semantic) / (frame['file_path'].split("/")[-1]))].name
+                    image_file_name = image_rename_map_paths[Path((self.data) / (frame['file_path'].split("/")[-1]))].name
+                    frame.update({'semantic_path': os.path.join(self.semantic_dir.name, Path(semantic_file_name))})
+                    frame.update({'file_path': os.path.join(self.image_dir.name, Path(image_file_name))})
 
             with open(self.output_dir / "transforms.json", "w", encoding="utf-8") as f:
                 json.dump(transform_json, f, indent=4)

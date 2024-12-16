@@ -192,11 +192,14 @@ class FruitNerf(DataParser):
             orientation_method = self.config.orientation_method
 
         poses = torch.from_numpy(np.array(poses).astype(np.float32))
+        poses2 = poses
         poses, transform_matrix = camera_utils.auto_orient_and_center_poses(
             poses,
             method=orientation_method,
             center_method=self.config.center_method,
         )
+        poses = poses2
+
 
         # Scale poses
         scale_factor = 1.0
@@ -277,6 +280,9 @@ class FruitNerf(DataParser):
             transform_matrix = transform_matrix @ torch.cat(
                 [applied_transform, torch.tensor([[0, 0, 0, 1]], dtype=transform_matrix.dtype)], 0
             )
+        else:
+            dataparser_transform_matrix = transform_matrix
+
         if "applied_scale" in meta:
             applied_scale = float(meta["applied_scale"])
             scale_factor *= applied_scale
