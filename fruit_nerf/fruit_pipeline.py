@@ -43,16 +43,16 @@ from nerfstudio.configs import base_config as cfg
 from nerfstudio.data.datamanagers.base_datamanager import (
     DataManager,
     DataManagerConfig,
-    VanillaDataManager,
+    VanillaDataManager, VanillaDataManagerConfig,
 )
 from nerfstudio.engine.callbacks import TrainingCallback, TrainingCallbackAttributes
 from nerfstudio.models.base_model import Model, ModelConfig
 from nerfstudio.utils import profiler
-from nerfstudio.pipelines.base_pipeline import Pipeline
+from nerfstudio.pipelines.base_pipeline import Pipeline, VanillaPipelineConfig
 
 
 @dataclass
-class FruitPipelineConfig(cfg.InstantiateConfig):
+class FruitPipelineConfig(VanillaPipelineConfig):
     """Configuration for pipeline instantiation"""
 
     _target: Type = field(default_factory=lambda: FruitPipeline)

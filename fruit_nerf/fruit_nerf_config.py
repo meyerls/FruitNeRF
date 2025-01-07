@@ -31,16 +31,12 @@ fruit_nerf_method = MethodSpecification(
         steps_per_save=2000,
         max_num_iterations=80000,
         mixed_precision=True,
+        save_only_latest_checkpoint=False,
         pipeline=FruitPipelineConfig(
             datamanager=FruitDataManagerConfig(
                 dataparser=FruitNerfDataParserConfig(),
                 train_num_rays_per_batch=4096//2,
                 eval_num_rays_per_batch=4096//4,
-                camera_optimizer=CameraOptimizerConfig(
-                    mode="SO3xR3",
-                    optimizer=AdamOptimizerConfig(lr=6e-4, eps=1e-8, weight_decay=1e-2),
-                    scheduler=ExponentialDecaySchedulerConfig(lr_final=6e-6, warmup_steps=20_000,max_steps=50_000),
-                ),
             ),
             model=FruitNerfModelConfig(eval_num_rays_per_chunk=1 << 15),
         ),
@@ -52,6 +48,10 @@ fruit_nerf_method = MethodSpecification(
             "fields": {
                 "optimizer": AdamOptimizerConfig(lr=1e-2, eps=1e-15),
                 "scheduler": ExponentialDecaySchedulerConfig(lr_final=0.0001, max_steps=50_000),
+            },
+            "camera_opt": {
+                "optimizer": AdamOptimizerConfig(lr=6e-4, eps=1e-8, weight_decay=1e-2),
+                "scheduler": ExponentialDecaySchedulerConfig(lr_final=6e-6, warmup_steps=20_000,max_steps=50_000),
             },
         },
         viewer=ViewerConfig(num_rays_per_chunk=1 << 13),
@@ -74,10 +74,6 @@ fruit_nerf_method_big = MethodSpecification(
                 dataparser=FruitNerfDataParserConfig(train_split_fraction=0.99),
                 train_num_rays_per_batch=4096 * 2,
                 eval_num_rays_per_batch=4096,
-                camera_optimizer=CameraOptimizerConfig(
-                    mode="SO3xR3",
-                    optimizer=RAdamOptimizerConfig(lr=6e-4, eps=1e-8, weight_decay=1e-3),
-                ),
             ),
             model=FruitNerfModelConfig(
                 eval_num_rays_per_chunk=1 << 15,
@@ -103,62 +99,13 @@ fruit_nerf_method_big = MethodSpecification(
                 "optimizer": RAdamOptimizerConfig(lr=1e-2, eps=1e-15),
                 "scheduler": ExponentialDecaySchedulerConfig(lr_final=1e-4, max_steps=50000),
             },
+            "camera_opt": {
+                "optimizer": AdamOptimizerConfig(lr=6e-4, eps=1e-8, weight_decay=1e-2),
+                "scheduler": ExponentialDecaySchedulerConfig(lr_final=6e-6, warmup_steps=20_000,max_steps=50_000),
+            },
         },
         viewer=ViewerConfig(num_rays_per_chunk=1 << 15),
         vis="viewer",
     ),
     description="Base config for FruitNeRF-Big",
-)
-
-fruit_nerf_method_huge = MethodSpecification(
-    config=TrainerConfig(
-        method_name="fruit_nerf_huge",
-        steps_per_eval_batch=500,
-        steps_per_save=2000,
-        max_num_iterations=100000,
-        mixed_precision=True,
-        pipeline=FruitPipelineConfig(
-            datamanager=FruitDataManagerConfig(
-                dataparser=FruitNerfDataParserConfig(),
-                train_num_rays_per_batch=4096 * 4,
-                eval_num_rays_per_batch=4096,
-                camera_optimizer=CameraOptimizerConfig(
-                    mode="SO3xR3",
-                    optimizer=RAdamOptimizerConfig(lr=6e-4, eps=1e-8, weight_decay=1e-3),
-                    scheduler=ExponentialDecaySchedulerConfig(lr_final=6e-5, max_steps=50000),
-                ),
-            ),
-            model=FruitNerfModelConfig(
-                eval_num_rays_per_chunk=1 << 15,
-                num_nerf_samples_per_ray=64,
-                num_proposal_samples_per_ray=(512, 512),
-                proposal_net_args_list=[
-                    {"hidden_dim": 16, "log2_hashmap_size": 17, "num_levels": 5, "max_res": 512, "use_linear": False},
-                    {"hidden_dim": 16, "log2_hashmap_size": 17, "num_levels": 7, "max_res": 2048, "use_linear": False},
-                ],
-                hidden_dim=256,
-                hidden_dim_color=256,
-                appearance_embed_dim=32,
-                geo_feat_dim=30,
-                hidden_dim_semantics=128,
-                num_layers_semantic=3,
-                max_res=8192,
-                proposal_weights_anneal_max_num_iters=5000,
-                log2_hashmap_size=21,
-            ),
-        ),
-        optimizers={
-            "proposal_networks": {
-                "optimizer": RAdamOptimizerConfig(lr=1e-2, eps=1e-15),
-                "scheduler": None,
-            },
-            "fields": {
-                "optimizer": RAdamOptimizerConfig(lr=1e-2, eps=1e-15),
-                "scheduler": ExponentialDecaySchedulerConfig(lr_final=1e-4, max_steps=50000),
-            },
-        },
-        viewer=ViewerConfig(num_rays_per_chunk=1 << 15),
-        vis="viewer",
-    ),
-    description="Base config for FruitNeRF-Huge",
 )

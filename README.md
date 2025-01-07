@@ -62,7 +62,7 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 [Follow these instructions](https://docs.nerf.studio/quickstart/installation.html) up to and including "
 tinycudann" to install dependencies and create an environment.
 
-**Important**: In Section *Install nerfstudio* please install version **0.3.2** via `pip install nerfstudio==0.3.2` not
+**Important**: In Section *Install nerfstudio* please install version **1.0.3** via `pip install nerfstudio==1.0.3` not
 the latest one!
 
 #### 1. Clone this repo

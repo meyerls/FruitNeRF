@@ -1,6 +1,6 @@
 [project]
 name = "fruit_nerf"
-version = "0.0.1"
+version = "1.0.0"
 
 dependencies=[
     "open3d",
@@ -24,7 +24,6 @@ include = ["fruit_nerf*"]
 [project.entry-points.'nerfstudio.method_configs']
 fruit_nerf = 'fruit_nerf.fruit_nerf_config:fruit_nerf_method'
 fruit_nerf_big = 'fruit_nerf.fruit_nerf_config:fruit_nerf_method_big'
-fruit_nerf_huge = 'fruit_nerf.fruit_nerf_config:fruit_nerf_method_huge'
 
 [project.scripts]
 # Note, add entrypoint name to nerfstudio/scripts/completions/install.py to include CLI completion
