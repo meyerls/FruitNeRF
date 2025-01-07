@@ -233,8 +233,8 @@ If you want to use it for your own data you have to create a config profile firs
 ```python
 Apple_GT_1024x1024_300 = {
     "path": "/path/2/extracted/pcd/semantic_colormap.ply",
-    "remove_outliers_nb_points": 200, # Clean pcd
-    "remove_outliers_radius": 0.01, # Clean pcd
+    "remove_outliers_nb_points": -1, # Clean pcd --> No point cloud cleaning
+    "remove_outliers_radius": -1, # Clean pcd 
     "down_sample": 0.001, # Voxel downsample for faster computation / clustering
     "eps": 0.01,
     "cluster_merge_distance": 0.04, # Merge distance for small clusters

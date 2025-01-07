@@ -1,3 +1,18 @@
+Apple_GT_1024x1024_300_Test = {
+    "path": "/home/se86kimy/Dropbox/10_DIss/06_data/fruit_nerf/01_apple_tree_1024x1024_#300/01_apple_tree_1024x1024_#300/fruit_nerf/2025-01-07_133227/fruit_nerf/semantic_colormap.ply",
+    "remove_outliers_nb_points": -1,
+    "remove_outliers_radius": -1,
+    "down_sample": 0.001,
+    "eps": 0.01,
+    "cluster_merge_distance": 0.04,
+    "minimum_size_factor": 0.3,
+    "min_samples": 100,
+    'template_path': './clustering/apple_template.ply',
+    'apple_template_size': 0.7,
+    'gt_cluster': "/home/se86kimy/Dropbox/10_DIss/06_data/fruit_nerf/01_apple_tree_1024x1024_#300/fruits.obj",
+    "gt_count": 283
+}
+
 # 01: Apple
 Apple_GT_1024x1024_300 = {
     "path": "/home/se86kimy/Dropbox/07_data/For5G/Apple_24_08_23/eval/01_apple/gt/semantic_colormap.ply",
@@ -13,6 +28,7 @@ Apple_GT_1024x1024_300 = {
     'gt_cluster': "/home/se86kimy/Dropbox/07_data/For5G/Apple_24_08_23/eval/01_apple/fruits.obj",
     "gt_count": 283
 }
+
 
 Apple_SAM_1024x1024_300 = {
     "path": "/home/se86kimy/Dropbox/07_data/For5G/Apple_24_08_23/eval/01_apple/sam/semantic_colormap.ply",
