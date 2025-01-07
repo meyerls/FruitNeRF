@@ -404,7 +404,7 @@ class FruitModel(Model):
             self, outputs: Dict[str, torch.Tensor], batch: Dict[str, torch.Tensor]
     ) -> Tuple[Dict[str, float], Dict[str, torch.Tensor]]:
         image = batch["image"].to(self.device)
-        rgb = outputs["rgb"]
+        rgb = outputs["rgb"].to(self.device)
         rgb = torch.clamp(rgb, min=0, max=1)
         acc = colormaps.apply_colormap(outputs["accumulation"])
         depth = colormaps.apply_depth_colormap(
@@ -440,7 +440,7 @@ class FruitModel(Model):
 
         # semantics
         # semantic_labels = torch.argmax(torch.nn.functional.softmax(outputs["semantics"], dim=-1), dim=-1)
-        semantic_labels = torch.sigmoid(outputs["semantics"])
+        semantic_labels = torch.sigmoid(outputs["semantics"]).to(self.device)
         images_dict[
             "semantics_colormap"] = semantic_labels
 
@@ -451,7 +451,7 @@ class FruitModel(Model):
 
         from torchmetrics.classification import BinaryJaccardIndex
         metric = BinaryJaccardIndex().to(self.device)
-        semantic_labels = torch.nn.functional.softmax(outputs["semantics"])
+        semantic_labels = torch.nn.functional.softmax(outputs["semantics"], dim=0).to(self.device)
         iou = metric(semantic_labels[..., 0], batch["fruit_mask"][..., 0])
         metrics_dict["iou"] = float(iou)
 

@@ -29,17 +29,17 @@ fruit_nerf_method = MethodSpecification(
         method_name="fruit_nerf",
         steps_per_eval_batch=500,
         steps_per_save=2000,
-        max_num_iterations=30000,
+        max_num_iterations=80000,
         mixed_precision=True,
         pipeline=FruitPipelineConfig(
             datamanager=FruitDataManagerConfig(
                 dataparser=FruitNerfDataParserConfig(),
-                train_num_rays_per_batch=4096,
-                eval_num_rays_per_batch=4096,
+                train_num_rays_per_batch=4096//2,
+                eval_num_rays_per_batch=4096//4,
                 camera_optimizer=CameraOptimizerConfig(
                     mode="SO3xR3",
                     optimizer=AdamOptimizerConfig(lr=6e-4, eps=1e-8, weight_decay=1e-2),
-                    scheduler=ExponentialDecaySchedulerConfig(lr_final=6e-6, warmup_steps=20_000,max_steps=200_000),
+                    scheduler=ExponentialDecaySchedulerConfig(lr_final=6e-6, warmup_steps=20_000,max_steps=50_000),
                 ),
             ),
             model=FruitNerfModelConfig(eval_num_rays_per_chunk=1 << 15),
@@ -47,11 +47,11 @@ fruit_nerf_method = MethodSpecification(
         optimizers={
             "proposal_networks": {
                 "optimizer": AdamOptimizerConfig(lr=1e-2, eps=1e-15),
-                "scheduler": ExponentialDecaySchedulerConfig(lr_final=0.0001, max_steps=200000),
+                "scheduler": ExponentialDecaySchedulerConfig(lr_final=0.0001, max_steps=50_000),
             },
             "fields": {
                 "optimizer": AdamOptimizerConfig(lr=1e-2, eps=1e-15),
-                "scheduler": ExponentialDecaySchedulerConfig(lr_final=0.0001, max_steps=200000),
+                "scheduler": ExponentialDecaySchedulerConfig(lr_final=0.0001, max_steps=50_000),
             },
         },
         viewer=ViewerConfig(num_rays_per_chunk=1 << 13),
