@@ -45,7 +45,7 @@ mangoes. Additionally, we assess the performance of fruit counting using the fou
 
 # :loudspeaker: News
 
-* 26.05.2025: We released :apple: FruitNeRF++ :pear:. [Code](https://github.com/meyerls/FruitNeRFpp) and [Paper](https://arxiv.org/abs/2505.19863) available!
+* 26.05.2025: We released :apple: **FruitNeRF++** :pear:. [Code](https://github.com/meyerls/FruitNeRFpp) and [Paper](https://arxiv.org/abs/2505.19863) available!
 * 24.09.2024: Thanks to [johnnynunez](https://github.com/johnnynunez) for employing [FruitNeRF on an NVIDIA Jetson](https://www.jetson-ai-lab.com/nerf.html) 
 * 12.08.2024: Paper is available on [Arxiv](https://arxiv.org/abs/2408.06190).
 * 30.06.2024: Paper got accepted to IROS.
